@@ -18,7 +18,7 @@ Welcome to the **Crime Record Management System (CRMS)**—a highly structured, 
 
 ### 🛡️ Offline-First Resilience (Fail-Safe Mechanism)
 
-```
+```text
                 +---------------------------------------+
                 |         CRMS Application Boot         |
                 +---------------------------------------+
@@ -82,7 +82,7 @@ We are actively expanding CRMS. In the next release, we are replacing the standa
 
 ## 📂 Project Directory Structure
 
-```
+```text
 v103/
 ├── .idea/                 # IntelliJ IDEA configuration files
 ├── src/                   # Source directory for the Java application
