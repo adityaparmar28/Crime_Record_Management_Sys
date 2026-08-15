@@ -87,31 +87,31 @@ Here is how all the classes are organized inside the `src` package:
 ```text
 src/
 ├── DataBase/                   # Database configuration, creation, and seeding
-│   ├── CreateTable.java        # Defines SQL schemas (tables, columns, primary keys, foreign keys)
-│   ├── Database.java           # Handles MySQL JDBC connection lifecycle & sync thread
-│   ├── DataFound.java          # Utilities to verify if records exist
-│   ├── InsertData.java         # Populates tables with default seed/sample data
-│   └── Validation.java         # Form validation queries (email patterns, age, etc.)
+│   ├── CreateTable.java
+│   ├── Database.java
+│   ├── DataFound.java
+│   ├── InsertData.java
+│   └── Validation.java
 ├── DataStructure/              # Files and reports exporter
-│   └── IOFiles.java            # Generates local .txt reports (Cases, Officers, FIRs)
+│   └── IOFiles.java
 ├── Layout/                     # CLI navigation pages and user menus
-│   ├── CRMngr.java             # Criminal Record Manager menu flow
-│   ├── CrimeMngr.java          # Crime & FIR management menu flow
-│   ├── DIG.java                # Police Officer Directory menu flow
-│   ├── Dashboard.java          # Main navigation dashboard hub
-│   └── Investigation.java      # Pending case tracking & assignment portal
+│   ├── CRMngr.java
+│   ├── CrimeMngr.java
+│   ├── DIG.java
+│   ├── Dashboard.java
+│   └── Investigation.java
 ├── Profile/                    # User registration and identity modules
-│   ├── Login_SignUpPage.java   # Login/Signup logic for Citizens and Officers
-│   └── User.java               # Citizen profile menu flow
+│   ├── Login_SignUpPage.java
+│   └── User.java
 ├── Quries/                     # Raw SQL statement execution layers
-│   ├── CRMngrQueries.java      # CRUD queries for criminals
-│   ├── CrimeMngrQueries.java   # Queries for filing FIRs and tracking cases
-│   ├── DIGQueries.java         # Queries for managing police officer accounts
-│   ├── IAQueries.java          # Investigation-specific assignment queries
-│   ├── Login_SignUp_Queries.java # Queries for handling authentication
-│   ├── OODataQueries.java      # Queries to fetch specific officer logs
-│   └── UserQuries.java         # Queries for updating citizen user profiles
-└── Main.java                   # Bootloader / Application entry point
+│   ├── CRMngrQueries.java
+│   ├── CrimeMngrQueries.java
+│   ├── DIGQueries.java
+│   ├── IAQueries.java
+│   ├── Login_SignUp_Queries.java
+│   ├── OODataQueries.java
+│   └── UserQuries.java
+└── Main.java
 ```
 
 ---
