@@ -10,6 +10,8 @@
   POLICE RECORD & COMPLAINT PORTAL
 ```
 
+> 🚨 **A robust, high-performance Crime Record Management System (CRMS) built in Java. Engineered with role-based security, JDBC connection resilience (online/offline fail-safe mode), and real-time analytics. Currently level-upping with custom Data Structures (Priority Queues, DLLs) & background daemon threads for extreme speed! 💻⚡**
+
 Welcome to the **Crime Record Management System (CRMS)**—a highly structured, modular Java CLI application designed to bridge the gap between citizens and law enforcement. CRMS empowers citizens to file complaints while giving officers a centralized, secure terminal to track investigations, manage criminal dossiers, roster personnel, and generate official documents.
 
 ---
