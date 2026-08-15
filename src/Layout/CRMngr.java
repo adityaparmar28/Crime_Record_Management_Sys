@@ -1,12 +1,15 @@
 package Layout;
 
+import Profile.Login_SignUpPage;
 import Quries.CRMngrQueries;
+
 import java.util.Scanner;
 
 public class CRMngr
 {
     Scanner sc=new Scanner(System.in);
     CRMngrQueries CRQ=new CRMngrQueries();
+    Login_SignUpPage LSP=new Login_SignUpPage();
 
     public void CrimeRecordManager() throws Exception
     {
@@ -21,20 +24,18 @@ public class CRMngr
                 System.out.println("+----------------------------------------------------------------------+");
                 System.out.println("|                          CRIME RECORD MANAGER                        |");
                 System.out.println("+----------------------------------------------------------------------+");
-                System.out.println();
-                System.out.println("1. Add Criminal Record");
-                System.out.println("2. Search Criminal");
-                System.out.println("3. List of All Criminals");
-                System.out.println("4. Update Criminal Record");
-                System.out.println("5. Home Page");
-                System.out.println();
+                System.out.println("| 1. Add Criminal Record");
+                System.out.println("| 2. Search Criminal");
+                System.out.println("| 3. List of All Criminals");
+                System.out.println("| 4. Update Criminal Record");
+                System.out.println("| 5. Home Page");
                 System.out.println("+----------------------------------------------------------------------+");
-                System.out.print("Enter Your Choice: ");
+                System.out.print("| Enter Your Choice: ");
                 crm_ch = sc.nextInt();
             }
             catch (Exception e)
             {
-                System.err.println("[ERROR] Invalid input. Please enter a valid number.");
+                System.err.println("[ERROR] Invalid Input....");
                 sc.nextLine(); // Clear the invalid input
                 continue; // Restart the loop
             }
@@ -43,8 +44,26 @@ public class CRMngr
             {
                 case 1:
                 {
-                    // Add Criminal Record
-                    addCriminalRecord();
+                    if (Login_SignUpPage.LoggedUserID.equals(""))
+                    {
+                        System.out.println("[INFO] You must be logged in to add criminal records....LogIn First....");
+                        if (!LSP.DGPLogin())
+                        {
+                            System.err.println("[ERROR] Login failed....Returning....");
+                            break;
+                        }
+                    }
+
+                    if(!(Login_SignUpPage.LoggedUserRole.equalsIgnoreCase("Admin") ||
+                            Login_SignUpPage.LoggedUserRole.equalsIgnoreCase("Officer")))
+                    {
+                        System.err.println("[WARNING] Only Directory of Police Officers Members (Admin/Officer) can Add Criminal....");
+                    }
+                    else
+                    {
+                        // Add Criminal Record
+                        addCriminalRecord();
+                    }
                     break;
                 }
 
@@ -64,8 +83,26 @@ public class CRMngr
 
                 case 4:
                 {
-                    // Update Criminal Record
-                    UpdateCriminalRecord();
+                    if (Login_SignUpPage.LoggedUserID.equals(""))
+                    {
+                        System.out.println("[INFO] You must be logged in to update criminal records....Log-In first.");
+                        if (!LSP.DGPLogin())
+                        {
+                            System.err.println("[ERROR] Login failed....Returning....");
+                            break;
+                        }
+                    }
+
+                    if(!(Login_SignUpPage.LoggedUserRole.equalsIgnoreCase("Admin") ||
+                            Login_SignUpPage.LoggedUserRole.equalsIgnoreCase("Officer")))
+                    {
+                        System.err.println("[WARNING] Only Directory of Police Officers Members (Admin/Officer) can Update Criminal Details....");
+                    }
+                    else
+                    {
+                        // Update Criminal Record
+                        UpdateCriminalRecord();
+                    }
                     break;
                 }
 
@@ -81,7 +118,7 @@ public class CRMngr
 
                 default:
                 {
-                    System.err.println("[ERROR] Invalid number format. Please enter a valid choice....");
+                    System.err.println("[ERROR] Invalid choice....Enter a valid choice....");
                 }
             }
         }

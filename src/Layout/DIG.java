@@ -3,6 +3,7 @@ package Layout;
 import Profile.Login_SignUpPage;
 import Quries.DIGQueries;
 import Quries.Login_SignUp_Queries;
+
 import java.util.Scanner;
 
 public class DIG
@@ -21,22 +22,39 @@ public class DIG
             System.out.println("+----------------------------------------------------------------------+");
             System.out.println("|                    DIRECTORY OF POLICE OFFICER                       |");
             System.out.println("+----------------------------------------------------------------------+");
-            System.out.println();
-            System.out.println("1. Add Police Officer Record");
-            System.out.println("2. Search Police Officer");
-            System.out.println("3. List of All Police Officers");
-            System.out.println("4. Update Police Officer Record");
-            System.out.println("5. Home Page");
+            System.out.println("| 1. Add Police Officer Record");
+            System.out.println("| 2. Search Police Officer");
+            System.out.println("| 3. List of All Police Officers");
+            System.out.println("| 4. Update Police Officer Record");
+            System.out.println("| 5. Home Page");
             System.out.println("+----------------------------------------------------------------------+");
-            System.out.print("Enter Your Choice: ");
+            System.out.print("| Enter Your Choice: ");
             int dig_ch = sc.nextInt();
 
             switch (dig_ch)
             {
                 case 1:
                 {
-                    // Add Police Officer Record
-                    addPoliceOfficerRecord();
+                    if (Login_SignUpPage.LoggedUserID.equals(""))
+                    {
+                        System.out.println("[INFO] You must be logged in to add police officer records....Log-In first....");
+                        if (!LS.DGPLogin())
+                        {
+                            System.err.println("[ERROR] Login failed....Returning....");
+                            break;
+                        }
+                    }
+
+                    if (!(Login_SignUpPage.LoggedUserRole.equalsIgnoreCase("Admin") ||
+                            Login_SignUpPage.LoggedUserRole.equalsIgnoreCase("Officer")))
+                    {
+                        System.err.println("[WARNING] Only DGP members (Admin/Officer) can Add Police Officer Record....");
+                    }
+                    else
+                    {
+                        // Add Police Officer Record
+                        addPoliceOfficerRecord();
+                    }
                     break;
                 }
 
@@ -56,8 +74,26 @@ public class DIG
 
                 case 4:
                 {
-                    // Update Police Officer Record
-                    UpdatePoliceOfficerRecord();
+                    if (Login_SignUpPage.LoggedUserID.equals(""))
+                    {
+                        System.out.println("[INFO] You must be logged in to update police officer records....Log-In first....");
+                        if (!LS.DGPLogin())
+                        {
+                            System.err.println("[ERROR] Login failed....Returning....");
+                            break;
+                        }
+                    }
+
+                    if (!(Login_SignUpPage.LoggedUserRole.equalsIgnoreCase("Admin") ||
+                            Login_SignUpPage.LoggedUserRole.equalsIgnoreCase("Officer")))
+                    {
+                        System.err.println("[WARNING] Only DGP members (Admin/Officer) can Update Police Officer Record....");
+                    }
+                    else
+                    {
+                        // Update Police Officer Record
+                        UpdatePoliceOfficerRecord();
+                    }
                     break;
                 }
 
@@ -70,27 +106,9 @@ public class DIG
 
                 default:
                 {
-                    System.err.println("[ERROR] Invalid number format. Please enter a valid choice....");
+                    System.err.println("[ERROR] Invalid Choice....Enter a valid choice....");
                 }
             }
-        }
-    }
-
-    public boolean DIGLogin() throws Exception
-    {
-        System.out.println("+----------------------------------------------------------------------+");
-        System.out.println("|                          DIG LOGIN PAGE                              |");
-        System.out.println("+----------------------------------------------------------------------+");
-
-        if(LS.userLogin())
-        {
-            //check credential if false then show forgot user credential option....
-            //Login Functionality through Query....
-            return true;
-        }
-        else
-        {
-            return false;
         }
     }
 

@@ -1,0 +1,153 @@
+-------------------------| CASES DATA |-------------------------
+
+----------------------------------------------------------------------------------------------
+
+ | Case ID: A7645 |
+ | Criminal ID: A545 |
+ | Investigating Officer ID: TRO403 |
+ | Case: bike accident |
+ | Case Type: Accident | Crime Location: ahmedabad | Crime Weapon: null
+ | Criminal or Suspect Name: jhgs | Victim Name: erfgn
+ | Case Description: vehicle slipped | Case Status: Pending
+
+----------------------------------------------------------------------------------------------
+
+ | Case ID: D1005 |
+ | Criminal ID: D505 |
+ | Investigating Officer ID: null |
+ | Case: Drug Smuggling |
+ | Case Type: Drug Crime | Crime Location: Bhavnagar | Crime Weapon: null
+ | Criminal or Suspect Name: Arjun Das | Victim Name: Police Dept
+ | Case Description: Illegal drug transport across state | Case Status: Pending
+
+----------------------------------------------------------------------------------------------
+
+ | Case ID: D1011 |
+ | Criminal ID: D511 |
+ | Investigating Officer ID: null |
+ | Case: Drug Ring |
+ | Case Type: Drug Crime | Crime Location: Rajkot | Crime Weapon: null
+ | Criminal or Suspect Name: Vijay Patil | Victim Name: Narcotics Bureau
+ | Case Description: Organized drug distribution network | Case Status: Pending
+
+----------------------------------------------------------------------------------------------
+
+ | Case ID: K1004 |
+ | Criminal ID: K504 |
+ | Investigating Officer ID: WCO301 |
+ | Case: Kidnapping |
+ | Case Type: Kidnapping | Crime Location: Rajkot | Crime Weapon: Gun
+ | Criminal or Suspect Name: Sameer Khan | Victim Name: Anjali Shah
+ | Case Description: Kidnapping minor for ransom | Case Status: Investigating
+
+----------------------------------------------------------------------------------------------
+
+ | Case ID: K1007 |
+ | Criminal ID: K507 |
+ | Investigating Officer ID: null |
+ | Case: Child Abduction |
+ | Case Type: Kidnapping | Crime Location: Junagadh | Crime Weapon: Chloroform
+ | Criminal or Suspect Name: Farhan Ali | Victim Name: Sita Devi
+ | Case Description: Abduction of 8-year-old child | Case Status: Solved
+
+----------------------------------------------------------------------------------------------
+
+ | Case ID: K765 |
+ | Criminal ID: K565 |
+ | Investigating Officer ID: null |
+ | Case: murder by knife |
+ | Case Type: Kill | Crime Location: ajhg | Crime Weapon: knife
+ | Criminal or Suspect Name: uyfd | Victim Name: ytgv
+ | Case Description: hugijh  htwrt | Case Status: Pending
+
+----------------------------------------------------------------------------------------------
+
+ | Case ID: M1003 |
+ | Criminal ID: M503 |
+ | Investigating Officer ID: null |
+ | Case: Murder Case |
+ | Case Type: Murder | Crime Location: Vadodara | Crime Weapon: Knife
+ | Criminal or Suspect Name: Rohan Singh | Victim Name: Vikas Patel
+ | Case Description: Intentional murder in dispute | Case Status: Pending
+
+----------------------------------------------------------------------------------------------
+
+ | Case ID: M1010 |
+ | Criminal ID: M510 |
+ | Investigating Officer ID: null |
+ | Case: Domestic Murder |
+ | Case Type: Murder | Crime Location: Vadodara | Crime Weapon: Poison
+ | Criminal or Suspect Name: Aisha Begum | Victim Name: Zaheer Khan
+ | Case Description: Suspected poisoning case | Case Status: Pending
+
+----------------------------------------------------------------------------------------------
+
+ | Case ID: R1001 |
+ | Criminal ID: R501 |
+ | Investigating Officer ID: CBO101 |
+ | Case: Bank Robbery |
+ | Case Type: Robbery | Crime Location: Ahmedabad | Crime Weapon: Pistol
+ | Criminal or Suspect Name: Rakesh Yadav | Victim Name: Amit Shah
+ | Case Description: Armed robbery at SBI Bank | Case Status: Investigating
+
+----------------------------------------------------------------------------------------------
+
+ | Case ID: R1009 |
+ | Criminal ID: R509 |
+ | Investigating Officer ID: null |
+ | Case: Jewelry Heist |
+ | Case Type: Robbery | Crime Location: Surat | Crime Weapon: Crowbar
+ | Criminal or Suspect Name: Deepak Chauhan | Victim Name: Gold Palace
+ | Case Description: Break-in at jewelry showroom | Case Status: Pending
+
+----------------------------------------------------------------------------------------------
+
+ | Case ID: R1012 |
+ | Criminal ID: R512 |
+ | Investigating Officer ID: null |
+ | Case: ATM Robbery |
+ | Case Type: Robbery | Crime Location: Bhavnagar | Crime Weapon: Hammer
+ | Criminal or Suspect Name: Nisha Kumari | Victim Name: HDFC Bank
+ | Case Description: Vandalized ATM and stole cash | Case Status: Pending
+
+----------------------------------------------------------------------------------------------
+
+ | Case ID: T1008 |
+ | Criminal ID: T508 |
+ | Investigating Officer ID: TRO402 |
+ | Case: Hit and Run |
+ | Case Type: Traffic Violation | Crime Location: Ahmedabad | Crime Weapon: Vehicle
+ | Criminal or Suspect Name: Priya Dubey | Victim Name: Ramesh Solanki
+ | Case Description: Fatal hit-and-run on highway | Case Status: Investigating
+
+----------------------------------------------------------------------------------------------
+
+ | Case ID: T6546 |
+ | Criminal ID: T546 |
+ | Investigating Officer ID: TRO403 |
+ | Case: Bomb Blast |
+ | Case Type: Terrories | Crime Location: Pulvama | Crime Weapon: Explosive
+ | Criminal or Suspect Name: umar khalid | Victim Name: indian soldiers
+ | Case Description: red van overtake army truc then accident it then blast using attack | Case Status: Pending
+
+----------------------------------------------------------------------------------------------
+
+ | Case ID: Y1002 |
+ | Criminal ID: Y502 |
+ | Investigating Officer ID: CYO201 |
+ | Case: Cyber Fraud |
+ | Case Type: Cyber Crime | Crime Location: Surat | Crime Weapon: Laptop
+ | Criminal or Suspect Name: Kunal Patel | Victim Name: Riya Mehta
+ | Case Description: Online banking phishing fraud | Case Status: Investigating
+
+----------------------------------------------------------------------------------------------
+
+ | Case ID: Y1006 |
+ | Criminal ID: Y506 |
+ | Investigating Officer ID: null |
+ | Case: Identity Theft |
+ | Case Type: Cyber Crime | Crime Location: Gandhinagar | Crime Weapon: Computer
+ | Criminal or Suspect Name: Sneha Reddy | Victim Name: Manish Jain
+ | Case Description: Stolen identity for bank fraud | Case Status: Solved
+
+-------------------------| END OF CASE DATA |-------------------------

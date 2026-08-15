@@ -1,7 +1,8 @@
 package Quries;
 
-import DataBase.DataBase;
+import DataBase.Database;
 import Profile.Login_SignUpPage;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Scanner;
@@ -10,18 +11,17 @@ public class UserQuries
 {
     Scanner sc=new Scanner(System.in);
     Login_SignUp_Queries LSQ=new Login_SignUp_Queries();
-    DataBase db=new DataBase();
+    Database db=new Database();
     OODataQueries OODQ=new OODataQueries();
 
     public void ChangePassword() throws Exception
     {
-        //Forget Passwd and Change Passwd both logic are Same....
         LSQ.ForgetPassword();
     }
 
     public void Profile() throws Exception
     {
-        String Profile = "SELECT Users_name,UserId,Role,EmailId,MobileNo,DOB FROM users WHERE UserId=?";
+        String Profile = "SELECT UsersName,UserID,Role,EmailID,MobileNo,DOB FROM users WHERE UserID=?";
 
         PreparedStatement QPro = db.getConnection().prepareStatement(Profile);
 
@@ -32,17 +32,17 @@ public class UserQuries
         if(rs.next())
         {
             System.out.println("+---------------- USER PROFILE ----------------+");
-            System.out.println("User ID     : "+rs.getString("UserId"));
-            System.out.println("Name        : "+rs.getString("Users_name"));
+            System.out.println("User ID     : "+rs.getString("UserID"));
+            System.out.println("Name        : "+rs.getString("UsersName"));
             System.out.println("Role        : "+rs.getString("Role"));
-            System.out.println("Email       : "+rs.getString("EmailId"));
+            System.out.println("Email       : "+rs.getString("EmailID"));
             System.out.println("Mobile      : "+rs.getString("MobileNo"));
             System.out.println("DOB         : "+rs.getDate("DOB"));
             System.out.println("+----------------------------------------------+");
         }
         else
         {
-            System.out.println("[ERROR] User not found.");
+            System.out.println("User not found.");
         }
 
         rs.close();
@@ -64,11 +64,11 @@ public class UserQuries
         switch(ch)
         {
             case 1:
-                column="Users_name";
+                column="UsersName";
                 break;
 
             case 2:
-                column="EmailId";
+                column="EmailID";
                 break;
 
             case 3:
@@ -84,7 +84,7 @@ public class UserQuries
 
         Object value=OODQ.SQLDType2JDType(column,"users");
 
-        String sql="UPDATE users SET "+column+"=? WHERE UserId=?";
+        String sql="UPDATE users SET "+column+"=? WHERE UserID=?";
 
         PreparedStatement ps=
                 db.getConnection().prepareStatement(sql);

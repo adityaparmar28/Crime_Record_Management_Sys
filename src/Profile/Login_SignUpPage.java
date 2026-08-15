@@ -1,22 +1,24 @@
 package Profile;
 
-import DataBase.DataBase;
+import DataBase.Database;
+import DataBase.Validation;
 import Quries.Login_SignUp_Queries;
+
 import java.util.Arrays;
 import java.util.Scanner;
 
 public class Login_SignUpPage
 {
     Scanner sc=new Scanner(System.in);
-    DataBase db=new DataBase();
+    Database db=new Database();
     Login_SignUp_Queries LSQ=new Login_SignUp_Queries();
+    Validation v=new Validation();
 
     //>>>Variables assignation...
     String name;    //same username for sup & sin
     int dob;        //same dob for sup & sin
     long m_no;      //uses in signup
     String email;
-    String edu;        //uses in signup
     String UID;     //uses for assigned ID
     String passwd;  //uses for assigned passwd
     String passwd1; //uses for input passwd
@@ -29,6 +31,8 @@ public class Login_SignUpPage
     String m_noS; //Convert to String
     public static String Role="Citizen";
     public static String LoggedUserID="";
+    public static String LoggedUserRole="";
+    //public static int atp = 2;
 
     public void SignUp() throws Exception
     {
@@ -47,7 +51,8 @@ public class Login_SignUpPage
                 {
                 }
 
-                while (!isName) {
+                while (!isName)
+                {
                     System.out.print("ENTER YOUR NAME: ");
                     name = sc.nextLine();
 
@@ -59,17 +64,20 @@ public class Login_SignUpPage
                         isName = true;
                     }
                 }
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
             }
 
             name = name.toUpperCase();
+
             while (!isEmail)
             {
                 System.out.print("Enter your Email: ");
                 email = sc.nextLine();
 
                 String valid = "@gmail.com";
-                if(!email.matches("^[A-Za-z0-9._%+-]+@gmail\\.com$"))
+                if(!email.matches("^[A-Za-z0-9._%+-]+@gmail.com"))
                 {
                     System.out.println("Invalid Email..!!");
                     System.out.println("Email must be a valid Gmail address..!!");
@@ -80,13 +88,16 @@ public class Login_SignUpPage
                 }
             }
 
-        DOB();
+        String Input="DOB";
+
+        DOB(Input);
 
         M_NO();
-        return;
+
+        assign();
     }
 
-    void DOB()
+    void DOB(String Input)
     {
         boolean born1=false; //for birth loop
         while(!born1)
@@ -94,14 +105,14 @@ public class Login_SignUpPage
 
             while (!SDob)
             {
-                System.out.print("ENTER YOUR DOB(DDMMYYYY): ");
+                System.out.print("ENTER "+Input+" (DDMMYYYY): ");
                 try
                 {
                     dob = sc.nextInt();
                 }
                 catch (Exception e)
                 {
-                    System.out.println("Invalid DOB..!!");
+                    System.out.println("Invalid "+Input+"..!!");
                     sc.next();
                     continue;
                 }
@@ -117,12 +128,12 @@ public class Login_SignUpPage
                 }
                 else
                 {
-                    System.out.println("Invalid DOB....");
-                    System.out.println("DOB must be 8 Digits..!!");
+                    System.out.println("Invalid "+Input+"....");
+                    System.out.println(Input+" must be 8 Digits..!!");
                 }
             }
 
-            //>>>DOB validation for DD | MM | YYYY...
+            //>>>Date validation for DD | MM | YYYY...
 
             int DD; //Date
             int MM; //Month
@@ -143,21 +154,21 @@ public class Login_SignUpPage
                     }
                     else
                     {
-                        System.out.println("Invalid Date of Birth(DD).");
+                        System.out.println("Invalid Date of "+Input+" (DD).");
                         System.out.println("Try Again...");
                         SDob = false;
                     }
                 }
                 else
                 {
-                    System.out.println("Invalid Month of Birth(MM).");
+                    System.out.println("Invalid Month of "+Input+" (MM).");
                     System.out.println("Try Again...");
                     SDob = false;
                 }
             }
-            else if(YYYY>2026)
+            else if(YYYY>2026 ||YYYY<1926)
             {
-                System.out.println("Invalid Year of Birth(YYYY).");
+                System.out.println("Invalid Year of "+Input+" (YYYY).");
                 System.out.println("Try Again...");
                 SDob = false;
             }
@@ -181,14 +192,14 @@ public class Login_SignUpPage
                     }
                     else
                     {
-                        System.out.println("Invalid Date of Birth(DD).");
+                        System.out.println("Invalid Date of "+Input+" (DD).");
                         System.out.println("Try Again...");
                         SDob = false;
                     }
                 }
                 else
                 {
-                    System.out.println("Invalid Month of Birth(MM).");
+                    System.out.println("Invalid Month of "+Input+"(MM).");
                     System.out.println("Try Again...");
                     SDob = false;
                 }
@@ -221,6 +232,7 @@ public class Login_SignUpPage
             {
                 System.out.println("Enter Valid Mobile number..!!");
                 System.out.println("Try Again....");
+                sc.nextLine(); // Clear the invalid input from buffer
             }
         }
 
@@ -316,7 +328,12 @@ public class Login_SignUpPage
         }
     }
 
-    public boolean IP_Auth() throws Exception //ID & PASSWD Authentication
+    public boolean IP_Auth() throws Exception
+    {
+        return IP_Auth(true); // Default to citizen login for compatibility
+    }
+
+    public boolean IP_Auth(boolean isCitizen) throws Exception //ID & PASSWD Authentication
     {
         if(LSQ.LoginQuery(UID1,passwd1))
         {
@@ -335,10 +352,12 @@ public class Login_SignUpPage
                 if(ask0=='Y' || ask0=='y')
                 {
                     SignUp();
-                    assign();
-                    return userLogin();
+                    return isCitizen ? userLoginInternal() : DGPLoginInternal();
                 }
-                return false;
+                else
+                {
+                    return isCitizen ? userLoginInternal() : DGPLoginInternal();
+                }
             }
             else
             {
@@ -351,7 +370,12 @@ public class Login_SignUpPage
 
     public boolean userLogin() throws Exception
     {
-        atp = 2;
+        atp = 2; // Reset attempts for new login request
+        return userLoginInternal();
+    }
+
+    private boolean userLoginInternal() throws Exception
+    {
         System.out.println("------| USER LOGIN |------");
         System.out.print("Enter UserID: ");
         UID1=sc.next();
@@ -365,7 +389,32 @@ public class Login_SignUpPage
         }
         else
         {
-            return IP_Auth();
+            return IP_Auth(true);
+        }
+    }
+
+    public boolean DGPLogin() throws Exception
+    {
+        atp = 2; // Reset attempts for new login request
+        return DGPLoginInternal();
+    }
+
+    private boolean DGPLoginInternal() throws Exception
+    {
+        System.out.println("------| DIRECTORY OF POLICE OFFICER LOGIN |------");
+        System.out.print("Enter UserID: ");
+        UID1=sc.next();
+        System.out.print("Enter Password: ");
+        passwd1=sc.next();
+
+        if(UID1.trim().isEmpty() || passwd1.trim().isEmpty())
+        {
+            System.out.println("Invalid UserID or Password!!");
+            return false;
+        }
+        else
+        {
+            return IP_Auth(false);
         }
     }
 }

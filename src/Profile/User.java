@@ -2,6 +2,7 @@ package Profile;
 
 import Quries.Login_SignUp_Queries;
 import Quries.UserQuries;
+
 import java.util.Scanner;
 
 public class User

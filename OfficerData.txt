@@ -1,0 +1,87 @@
+-------------------------| OFFICER DATA |-------------------------
+
+----------------------------------------------------------------------------------------------
+
+ | Officer ID: CBO101 |
+ | Name: Rajesh Kumar | Date Of Birth: 1988-05-14 | Age: 37 | Gender: Male
+ | Rank: Inspector | Department: Crime Branch | Station ID: ST-CB01
+ | Joining Date: 2012-07-15 | Officer Status: Active | Assigned Case: R1001 | Investigation Status: Investigating
+
+----------------------------------------------------------------------------------------------
+
+ | Officer ID: CBO102 |
+ | Name: Priya Mehta | Date Of Birth: 1990-03-22 | Age: 36 | Gender: Female
+ | Rank: ACP | Department: Crime Branch | Station ID: ST-CB02
+ | Joining Date: 2014-06-10 | Officer Status: On Leave | Assigned Case: null | Investigation Status: Pending
+
+----------------------------------------------------------------------------------------------
+
+ | Officer ID: CBO103 |
+ | Name: Amit Patel | Date Of Birth: 1985-09-10 | Age: 40 | Gender: Male
+ | Rank: Sub Inspector | Department: Crime Branch | Station ID: ST-CB03
+ | Joining Date: 2010-01-12 | Officer Status: Suspended | Assigned Case: null | Investigation Status: Solved
+
+----------------------------------------------------------------------------------------------
+
+ | Officer ID: CYO201 |
+ | Name: Neha Sharma | Date Of Birth: 1992-11-22 | Age: 33 | Gender: Female
+ | Rank: Inspector | Department: Cyber Cell | Station ID: ST-CY01
+ | Joining Date: 2018-03-20 | Officer Status: Active | Assigned Case: Y1002 | Investigation Status: Investigating
+
+----------------------------------------------------------------------------------------------
+
+ | Officer ID: CYO202 |
+ | Name: Vikram Joshi | Date Of Birth: 1987-07-18 | Age: 38 | Gender: Male
+ | Rank: Head Constable | Department: Cyber Cell | Station ID: ST-CY02
+ | Joining Date: 2015-09-05 | Officer Status: Active | Assigned Case: null | Investigation Status: Pending
+
+----------------------------------------------------------------------------------------------
+
+ | Officer ID: CYO203 |
+ | Name: Kavita Rao | Date Of Birth: 1994-01-30 | Age: 32 | Gender: Female
+ | Rank: Sub Inspector | Department: Cyber Cell | Station ID: ST-CY03
+ | Joining Date: 2020-02-14 | Officer Status: On Leave | Assigned Case: null | Investigation Status: Solved
+
+----------------------------------------------------------------------------------------------
+
+ | Officer ID: TRO401 |
+ | Name: Vikram Singh | Date Of Birth: 1990-07-30 | Age: 35 | Gender: Male
+ | Rank: Inspector | Department: Traffic | Station ID: ST-TR01
+ | Joining Date: 2015-12-10 | Officer Status: Active | Assigned Case: null | Investigation Status: Pending
+
+----------------------------------------------------------------------------------------------
+
+ | Officer ID: TRO402 |
+ | Name: Pooja Gupta | Date Of Birth: 1993-04-15 | Age: 33 | Gender: Female
+ | Rank: Sub Inspector | Department: Traffic | Station ID: ST-TR02
+ | Joining Date: 2019-01-08 | Officer Status: On Leave | Assigned Case: T1008 | Investigation Status: Investigating
+
+----------------------------------------------------------------------------------------------
+
+ | Officer ID: TRO403 |
+ | Name: Ravi Tiwari | Date Of Birth: 1986-08-20 | Age: 39 | Gender: Male
+ | Rank: ACP | Department: Traffic | Station ID: ST-TR03
+ | Joining Date: 2011-05-22 | Officer Status: Active | Assigned Case: T6546 | Investigation Status: Pending
+
+----------------------------------------------------------------------------------------------
+
+ | Officer ID: WCO301 |
+ | Name: Sunita Verma | Date Of Birth: 1995-02-18 | Age: 31 | Gender: Female
+ | Rank: Inspector | Department: Women Cell | Station ID: ST-WC01
+ | Joining Date: 2020-08-05 | Officer Status: Active | Assigned Case: K1004 | Investigation Status: Investigating
+
+----------------------------------------------------------------------------------------------
+
+ | Officer ID: WCO302 |
+ | Name: Meera Iyer | Date Of Birth: 1991-06-25 | Age: 35 | Gender: Female
+ | Rank: ACP | Department: Women Cell | Station ID: ST-WC02
+ | Joining Date: 2016-11-12 | Officer Status: Active | Assigned Case: null | Investigation Status: Pending
+
+----------------------------------------------------------------------------------------------
+
+ | Officer ID: WCO303 |
+ | Name: Arjun Nair | Date Of Birth: 1989-12-08 | Age: 36 | Gender: Male
+ | Rank: Head Constable | Department: Women Cell | Station ID: ST-WC03
+ | Joining Date: 2013-04-20 | Officer Status: Suspended | Assigned Case: null | Investigation Status: Solved
+
+-------------------------| END OF OFFICER DATA |-------------------------

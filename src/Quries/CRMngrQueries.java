@@ -1,76 +1,35 @@
 package Quries;
 
-import DataBase.DataBase;
+import DataBase.DataFound;
+import DataBase.Database;
+import DataBase.Validation;
 import DataStructure.IOFiles;
+import Profile.Login_SignUpPage;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Scanner;
 
 public class CRMngrQueries
 {
-    DataBase db = new DataBase();
+    Database db = new Database();
     Scanner sc = new Scanner(System.in);
     OODataQueries OODQ=new OODataQueries();
     IOFiles IOF=new IOFiles();
+    Validation v=new Validation();
+    DataFound found=new DataFound();
+    Login_SignUpPage LSP=new Login_SignUpPage();
 
     public void AddCriminalRQuery() throws Exception
     {
-        int C_Id=0;
-        String C_Name="";
-        int C_Age=0;
         String C_Gender="";
-        int C_CaseID=0;
-        String C_CrimeType="";
-        String C_CrimeDate="";
-        int C_IOffID=0;
         String C_CaseStatus="";
 
-        try
-        {
-            System.out.print("Enter Criminal ID: ");
-            C_Id = sc.nextInt();
-        }
-        catch (Exception e)
-        {
-            System.err.println("[ERROR] Invalid input. Please enter a valid integer for Criminal ID.");
-        }
+        String C_Id=v.readNonEmptyString("Enter Criminal ID: ");
 
-        try
-        {
-            System.out.print("Enter Criminal Name: ");
-            C_Name = sc.next();
+        String C_Name=v.readNonEmptyString("Enter Criminal Name: ");
 
-            if(C_Name.isBlank())
-            {
-                System.out.println("[ERROR] Name cannot be empty.");
-                return;
-            }
-
-            if(!C_Name.matches("[A-Za-z ]{3,50}"))
-            {
-                System.out.println("[ERROR] Invalid Name.");
-                return;
-            }
-        }
-        catch (Exception e)
-        {
-            System.err.println("[ERROR] Invalid input. Please enter a valid string for Criminal Name.");
-        }
-
-        try
-        {
-            System.out.print("Enter Criminal Age: ");
-            C_Age = sc.nextInt();
-            if(C_Age<10)
-            {
-                System.err.println("[INVALID] Invalid Age for Criminal....");
-                return;
-            }
-        }
-        catch (Exception e)
-        {
-            System.err.println("[ERROR] Invalid input. Please enter a valid integer for Criminal Age.");
-        }
+        int C_Age=v.readIntRange("Enter Criminal Age: ",10,100);
 
         try
         {
@@ -85,141 +44,122 @@ public class CRMngrQueries
         }
         catch (Exception e)
         {
-            System.err.println("[ERROR] Invalid input. Please enter a valid string for Criminal Gender.");
+            System.err.println("[ERROR] Invalid Gender....Enter a valid Criminal Gender....");
         }
 
-        try
-        {
-            System.out.print("Enter Case ID: ");
-            C_CaseID = sc.nextInt();
-        }
-        catch (Exception e)
-        {
-            System.err.println("[ERROR] Invalid input. Please enter a valid integer for Case ID.");
-        }
+        String C_CaseID=v.readNonEmptyString("Enter Case ID: ");
 
-        try
-        {
-            System.out.print("Enter Crime Type: ");
-            C_CrimeType = sc.next();
+        String C_CrimeType=v.readNonEmptyString("Enter Crime Type: ");
 
-            if(C_CrimeType.isBlank())
+        String C_CrimeDate=v.Date("Crime Date");
+
+        String C_IOffID=v.readNonEmptyString("Enter Investigating Officer ID: ");
+
+        boolean CaseSLoop=false;
+        while (!CaseSLoop)
+        {
+            C_CaseStatus = v.readAlphaString("Enter Case Status: ");
+            C_CaseStatus = C_CaseStatus.toUpperCase();
+
+            if (!(C_CaseStatus.matches("PENDING") || C_CaseStatus.matches("INVESTIGATING") || C_CaseStatus.matches("SOLVED")))
             {
-                System.out.println("[ERROR] Name cannot be empty.");
-                return;
+                System.err.println("[INVALID] Invalid Case Status.....");
             }
-
-            if(!C_CrimeType.matches("[A-Za-z ]{3,50}"))
+            else
             {
-                System.out.println("[ERROR] Invalid Name.");
-                return;
-            }
-
-        }
-        catch (Exception e)
-        {
-            System.err.println("[ERROR] Invalid input. Please enter a valid string for Crime Type.");
-        }
-
-        try
-        {
-            System.out.print("Enter Crime Date: ");
-            C_CrimeDate = sc.next();
-            //dob valid check....
-        }
-        catch (Exception e)
-        {
-            System.err.println("[ERROR] Invalid input. Please enter a valid string for Crime Date.");
-        }
-
-        try
-        {
-            System.out.print("Enter Investigating Officer ID: ");
-            C_IOffID = sc.nextInt();
-        }
-        catch (Exception e)
-        {
-            System.err.println("[ERROR] Invalid input. Please enter a valid integer for Investigating Officer ID.");
-        }
-
-        try
-        {
-            System.out.print("Enter Case Status: ");
-            C_CaseStatus = sc.next();
-
-            if(C_CaseStatus.isBlank())
-            {
-                System.out.println("[ERROR] Name cannot be empty.");
-                return;
-            }
-
-            if(!C_CaseStatus.matches("[A-Za-z ]{3,50}"))
-            {
-                System.out.println("[ERROR] Invalid Name.");
-                return;
+                CaseSLoop=true;
             }
         }
-        catch (Exception e)
-        {
-            System.err.println("[ERROR] Invalid input. Please enter a valid string for Case Status.");
-        }
 
-        String addCRQ = "insert into criminal_details(Criminal_ID,Name,Age,Gender,CaseID,Crime_Type,Crime_Date,InvestingOfficerID,Case_Status) values(?,?,?,?,?,?,?,?,?)";
+        db.con.setAutoCommit(false);
+
+        String addCRQ = "insert into criminal_details(CriminalID,Name,Age,Gender,CaseID,CrimeType,CrimeDate,InvestingOfficerID,CaseStatus) values(?,?,?,?,?,?,?,?,?)";
         PreparedStatement addCR = db.getConnection().prepareStatement(addCRQ);
-        addCR.setInt(1,C_Id);
+        addCR.setString(1,C_Id);
         addCR.setString(2, C_Name);
         addCR.setInt(3, C_Age);
         addCR.setString(4, C_Gender);
-        addCR.setInt(5, C_CaseID);
+        addCR.setString(5, C_CaseID);
         addCR.setString(6, C_CrimeType);
         addCR.setDate(7, java.sql.Date.valueOf(C_CrimeDate));
-        addCR.setInt(8, C_IOffID);
+        addCR.setString(8, C_IOffID);
         addCR.setString(9, C_CaseStatus);
         int update = addCR.executeUpdate();
 
+        int updateCase = 0;
+        int updatePic = 0;
+        PreparedStatement upCD = null;
+        PreparedStatement upCP = null;
+
         if (update > 0)
         {
+            // Sync with case_details
+            String upCDQuery = "update case_details set CriminalID=? where CaseID=?";
+            upCD = db.getConnection().prepareStatement(upCDQuery);
+            upCD.setString(1, C_Id);
+            upCD.setString(2, C_CaseID);
+            updateCase = upCD.executeUpdate();
+
+            // Sync with Criminal_Pictures
+            String upCPQuery = "insert into Criminal_Pictures(CriminalID,CaseID,CriminalName) values(?,?,?)";
+            upCP = db.getConnection().prepareStatement(upCPQuery);
+            upCP.setString(1, C_Id);
+            upCP.setString(2, C_CaseID);
+            upCP.setString(3, C_Name);
+            updatePic = upCP.executeUpdate();
+        }
+
+        if (update > 0 && updateCase > 0 && updatePic > 0)
+        {
             System.out.println("[UPDATED] Criminal details added successfully...");
+            db.con.commit();
             addCR.close();
+            if (upCD != null) upCD.close();
+            if (upCP != null) upCP.close();
         }
         else
         {
             System.out.println("[FAILED] Criminal Data Couldn't be Added...");
+            db.con.rollback();
             addCR.close();
+            if (upCD != null) upCD.close();
+            if (upCP != null) upCP.close();
         }
     }
 
     public void UpdateCriminalRQuery() throws Exception
     {
-        int C_CaseID=0;
-        try
+        String C_CaseID=v.readNonEmptyString("Enter Case ID to Update: ");
+
+        if(!found.isCaseFound(C_CaseID))
         {
-            System.out.print("Enter Case ID to Update: ");
-            C_CaseID = sc.nextInt();
-        }
-        catch (Exception e)
-        {
-            System.err.println("[ERROR] Invalid input. Please enter a valid integer for Case ID.");
+            System.err.println("[ERROR] Case not Found....");
+            return;
         }
 
         try
         {
-            System.out.println("Which Details do you want to Update?");
-            System.out.println("1. Investingating Officer ID.");
-            System.out.println("2. Case Status.");
-            System.out.println("3. Criminal Status.");
-            System.out.println("4. Bail Date.");
-            System.out.println("5. Release Date.");
-            System.out.println();
-            System.out.print("Enter Your Choice: ");
+            System.out.println("Which Details do you want to Update???");
+            System.out.println("| 1. Investingating Officer ID.");
+            System.out.println("| 2. Case Status.");
+            System.out.println("| 3. Criminal Status.");
+            System.out.println("| 4. Bail Date.");
+            System.out.println("| 5. Release Date.");
+            System.out.println("| 0. Cancel...");
+            System.out.print("| Enter Your Choice: ");
             int updateCri_ch = sc.nextInt();
 
             switch (updateCri_ch)
             {
+                case 0:
+                {
+                    System.out.println("[CANCELLED] Criminal Details Updation Cancelled....");
+                    break;
+                }
+
                 case 1:
                 {
-                    System.out.print("Enter New Investigating Officer ID: ");
-                    String C_IOffID = sc.next();
+                    String C_IOffID = v.readNonEmptyString("Enter New Investigating Officer ID: ");
                     UpdateIOffID(C_IOffID, C_CaseID);
 
                     break;
@@ -227,8 +167,23 @@ public class CRMngrQueries
 
                 case 2:
                 {
-                    System.out.print("Enter Updating Case Status: ");
-                    String C_CaseStatus = sc.next();
+                    String C_CaseStatus="";
+
+                    boolean CaseSLoop=false;
+                    while (!CaseSLoop)
+                    {
+                        C_CaseStatus = v.readAlphaString("Enter Case Status: ");
+                        C_CaseStatus = C_CaseStatus.toUpperCase();
+
+                        if (!(C_CaseStatus.matches("PENDING") || C_CaseStatus.matches("INVESTIGATING") || C_CaseStatus.matches("SOLVED")))
+                        {
+                            System.err.println("[INVALID] Invalid Case Status.....");
+                        }
+                        else
+                        {
+                            CaseSLoop=true;
+                        }
+                    }
                     UpdateCaseStatus(C_CaseStatus, C_CaseID);
 
                     break;
@@ -237,7 +192,24 @@ public class CRMngrQueries
                 case 3:
                 {
                     System.out.print("Enter Updating Criminal Status: ");
-                    String C_CriminalStatus = sc.next();
+                    String C_CriminalStatus ="";
+
+                    boolean CriminalSLoop=false;
+                    while (!CriminalSLoop)
+                    {
+                        C_CriminalStatus = v.readAlphaString("Enter Case Status: ");
+                        C_CriminalStatus = C_CriminalStatus.toUpperCase();
+
+                        if (!(C_CriminalStatus.matches("JAILED") || C_CriminalStatus.matches("BAILED") || C_CriminalStatus.matches("DEAD")||C_CriminalStatus.matches("RELEASED")))
+                        {
+                            System.err.println("[INVALID] Invalid Case Status.....");
+                        }
+                        else
+                        {
+                            CriminalSLoop=true;
+                        }
+                    }
+
                     UpdateCriminalStatus(C_CriminalStatus, C_CaseID);
 
                     break;
@@ -245,8 +217,8 @@ public class CRMngrQueries
 
                 case 4:
                 {
-                    System.out.print("Enter Updating Bail Date(DDMMYYYY): ");
-                    String C_BailDate = sc.next();
+
+                    String C_BailDate = v.Date("Updating Bail Date");
                     SetUpdateBail(C_BailDate, C_CaseID);
 
                     break;
@@ -254,145 +226,173 @@ public class CRMngrQueries
 
                 case 5:
                 {
-                    System.out.print("Enter Updating Release Date(DDMMYYYY): ");
-                    String C_ReleaseDate = sc.next();
+                    String C_ReleaseDate = v.Date("Updating Release Date");
                     UpdateReleaseDate(C_ReleaseDate, C_CaseID);
 
                     break;
                 }
 
-                default: {
+                default:
+                {
                     System.out.println("[ERROR] Invalid number format. Please enter a valid choice....");
                 }
             }
-        }catch (Exception e)
+        }
+        catch (Exception e)
         {
-            System.err.println("[ERROR] Invalid input. Please enter a valid integer for your choice.");
+            System.err.println("[ERROR] Invalid Choice....Enter a valid choice....");
         }
     }
 
-    void UpdateIOffID(String oid, int CaseID) throws Exception
+    void UpdateIOffID(String oid, String CaseID) throws Exception
     {
         db.con.setAutoCommit(false);
 
         String UCri_IOID = "update criminal_details set InvestingOfficerID=? where CaseID=?";
         PreparedStatement QUCrIOID = db.getConnection().prepareStatement(UCri_IOID);
         QUCrIOID.setString(1, oid);
-        QUCrIOID.setInt(2, CaseID);
+        QUCrIOID.setString(2, CaseID);
         int updateCIO = QUCrIOID.executeUpdate();
 
-        String UOf_CaseID = "update officer_details set CaseID=? where InvestingOfficerID=?";
+        String UOf_CaseID = "update officer_details set AssignedCase=? where OfficerID=?";
         PreparedStatement QUOfCID = db.getConnection().prepareStatement(UOf_CaseID);
-        QUOfCID.setInt(1, CaseID);
+        QUOfCID.setString(1, CaseID);
         QUOfCID.setString(2, oid);
         int updateIO_cid = QUOfCID.executeUpdate();
 
-        if (updateCIO > 0 && updateIO_cid > 0)
+        String UOIdCase = "update case_details set OfficerID=? where CaseID=?";
+        PreparedStatement QUOIdCase = db.getConnection().prepareStatement(UOIdCase);
+        QUOIdCase.setString(2, CaseID);
+        QUOIdCase.setString(1, oid);
+        int upOidCase = QUOIdCase.executeUpdate();
+
+        if (updateCIO > 0 && updateIO_cid > 0 && upOidCase>0)
         {
             System.out.println("[UPDATED] Criminal details updated successfully...");
             db.con.commit();
             QUCrIOID.close();
             QUOfCID.close();
+            QUOIdCase.close();
         }
         else
         {
             System.out.println("[FAILED] Criminal Data Couldn't be Updated...");
             db.con.rollback();
-            QUCrIOID.close();
-            QUOfCID.close();
-
+            QUCrIOID.cancel();
+            QUOfCID.cancel();
+            QUOIdCase.cancel();
         }
     }
 
-    void UpdateCaseStatus(String Status, int CaseID) throws Exception
+    void UpdateCaseStatus(String Status, String CaseID) throws Exception
     {
         db.con.setAutoCommit(false);
 
-        String UCase_Status = "update criminal_details set Case_Status=? where CaseID=?";
+        String UCase_Status = "update criminal_details set CaseStatus=? where CaseID=?";
         PreparedStatement QUCS = db.getConnection().prepareStatement(UCase_Status);
         QUCS.setString(1, Status);
-        QUCS.setInt(2, CaseID);
+        QUCS.setString(2, CaseID);
         int updateCS = QUCS.executeUpdate();
 
-        String UCD_CaseStatus = "update case_details set Case_Status=? where CaseID=?";
+        String UCD_CaseStatus = "update case_details set CaseStatus=? where CaseID=?";
         PreparedStatement QUCD_CS = db.getConnection().prepareStatement(UCD_CaseStatus);
         QUCD_CS.setString(1, Status);
-        QUCD_CS.setInt(2, CaseID);
+        QUCD_CS.setString(2, CaseID);
         int updateCD_CS = QUCD_CS.executeUpdate();
 
-        if (updateCS > 0 && updateCD_CS > 0)
+        String UOD_CaseStatus = "update officer_details set CaseStatus=? where AssignedCase=?";
+        PreparedStatement QUOD_CS = db.getConnection().prepareStatement(UOD_CaseStatus);
+        QUOD_CS.setString(1, Status);
+        QUOD_CS.setString(2, CaseID);
+        int updateOD_CS = QUOD_CS.executeUpdate();
+
+        if (updateCS > 0 && updateCD_CS > 0 && updateOD_CS>0)
         {
             System.out.println("[UPDATED] Case status updated successfully...");
             db.con.commit();
             QUCS.close();
             QUCD_CS.close();
+            QUOD_CS.close();
         }
         else
         {
             System.out.println("[FAILED] Case status couldn't be updated...");
             db.con.rollback();
-            QUCS.close();
-            QUCD_CS.close();
+            QUCS.cancel();
+            QUCD_CS.cancel();
+            QUOD_CS.cancel();
         }
     }
 
-    void UpdateCriminalStatus(String Status, int CaseID) throws Exception
+    void UpdateCriminalStatus(String Status, String CaseID) throws Exception
     {
-        String UCri_Status = "update criminal_details set Criminal_Status=? where CaseID=?";
+        db.con.setAutoCommit(false);
+
+        String UCri_Status = "update criminal_details set CriminalStatus=? where CaseID=?";
         PreparedStatement QUCS = db.getConnection().prepareStatement(UCri_Status);
         QUCS.setString(1, Status);
-        QUCS.setInt(2, CaseID);
+        QUCS.setString(2, CaseID);
         int updateCS = QUCS.executeUpdate();
 
         if (updateCS > 0)
         {
             System.out.println("[UPDATED] Criminal status updated successfully...");
+            db.con.commit();
             QUCS.close();
         }
         else
         {
             System.out.println("[FAILED] Criminal status couldn't be updated...");
-            QUCS.close();
+            db.con.rollback();
+            QUCS.cancel();
         }
     }
 
-    void SetUpdateBail(String BailDate, int CaseID) throws Exception
+    void SetUpdateBail(String BailDate, String CaseID) throws Exception
     {
-        String UBail_Date = "update criminal_details set Bail_Date=? where CaseID=?";
+        db.con.setAutoCommit(false);
+
+        String UBail_Date = "update criminal_details set BailDate=? where CaseID=?";
         PreparedStatement QUBD = db.getConnection().prepareStatement(UBail_Date);
         QUBD.setString(1, BailDate);
-        QUBD.setInt(2, CaseID);
+        QUBD.setString(2, CaseID);
         int updateBD = QUBD.executeUpdate();
 
         if (updateBD > 0)
         {
             System.out.println("[UPDATED] Bail date updated successfully...");
+            db.con.commit();
             QUBD.close();
         }
         else
         {
             System.out.println("[FAILED] Bail date couldn't be updated...");
-            QUBD.close();
+            db.con.rollback();
+            QUBD.cancel();
         }
     }
 
-    void UpdateReleaseDate(String ReleaseDate, int CaseID) throws Exception
+    void UpdateReleaseDate(String ReleaseDate, String CaseID) throws Exception
     {
-        String URelease_Date = "update criminal_details set Release_Date=? where CaseID=?";
+        db.con.setAutoCommit(false);
+
+        String URelease_Date = "update criminal_details set ReleaseDate=? where CaseID=?";
         PreparedStatement QURD = db.getConnection().prepareStatement(URelease_Date);
         QURD.setString(1, ReleaseDate);
-        QURD.setInt(2, CaseID);
+        QURD.setString(2, CaseID);
         int updateRD = QURD.executeUpdate();
 
         if (updateRD > 0)
         {
             System.out.println("[UPDATED] Release date updated successfully...");
+            db.con.commit();
             QURD.close();
         }
         else
         {
             System.out.println("[FAILED] Release date couldn't be updated...");
-            QURD.close();
+            db.con.rollback();
+            QURD.cancel();
         }
     }
 
@@ -402,24 +402,22 @@ public class CRMngrQueries
         PreparedStatement QACRec = db.getConnection().prepareStatement(ACriRec);
         ResultSet rsACRec = QACRec.executeQuery();
 
-
-
         System.out.println("+-------------+----------------------+-----+---------+------------+----------------------+------------+--------------+------------+");
-        System.out.printf("| %-4s | %-20s | %-3s | %-7s | %-10s | %-20s | %-10s | %-12s | %-10s |\n", "Criminal ID", "Name", "Age", "Gender","Case ID", "Crime", "Crime Date","Judgement", "Status");
+        System.out.printf("| %-11s | %-20s | %-3s | %-7s | %-10s | %-20s | %-10s | %-12s | %-10s |\n", "Criminal ID", "Name", "Age", "Gender","Case ID", "Crime", "Crime Date","Judgement", "Status");
         System.out.println("+-------------+----------------------+-----+---------+------------+----------------------+------------+--------------+------------+");
 
         while (rsACRec.next())
         {
             System.out.println(String.format("| %-11s | %-20s | %-3s | %-7s | %-10s | %-20s | %-10s | %-12s | %-10s |",
-                rsACRec.getInt("Criminal_ID"),
+                rsACRec.getString("CriminalID"),
                 rsACRec.getString("Name"),
                 rsACRec.getInt("Age"),
                 rsACRec.getString("Gender"),
-                rsACRec.getInt("CaseID"),
-                rsACRec.getString("Crime_Type"),
-                rsACRec.getDate("Crime_Date"),
-                rsACRec.getString("Punishment_Type"),
-                rsACRec.getString("Criminal_Status")));
+                rsACRec.getString("CaseID"),
+                rsACRec.getString("CrimeType"),
+                rsACRec.getDate("CrimeDate"),
+                rsACRec.getString("PunishmentType"),
+                rsACRec.getString("CriminalStatus")));
         }
 
         System.out.println("Would you like to download Criminal Data as Text File???");
@@ -427,9 +425,6 @@ public class CRMngrQueries
 
         if(is_txt=='Y' || is_txt=='y')
         {
-            //login first...
-            //>>>method pending....
-            //Text file creation method here....
             ResultSet fileSet= QACRec.executeQuery();
             IOF.FetchCriminalData(fileSet);
             System.out.println("[INFO] Criminal Data Downloaded as Text File Successfully...");
@@ -449,7 +444,7 @@ public class CRMngrQueries
     public void SearchCriminalRecord() throws Exception
     {
         System.out.println("Do you Know Anything Perticular Details about Criminal???(Yes / No)");
-
+        System.out.print(">>> ");
         char ans=sc.next().charAt(0);
 
         if(ans=='Y'||ans=='y')
@@ -470,31 +465,29 @@ public class CRMngrQueries
     {
         char ans;
         System.out.println("Which data do you know about Criminal???");
-        System.out.println("[INFO] Criminal_ID,Name,Gender,CaseID,Crime_Type,Case_Status,Punishment_Type are valid....");
+        System.out.println("[INFO] CriminalID,Name,Gender,CaseID,CrimeType,CaseStatus,PunishmentType are valid....");
+        System.out.print(">>> ");
         String ColummName=sc.next();
-
-        //>>>if UpData column name found in case_details table then process ahead otherwise show error message that column not found in database....
 
         String TableName="criminal_details";
 
         System.out.print("Enter "+ColummName+" Details: ");
 
-        //input variable static public banana padega..!!
         Object Kdetails=OODQ.SQLDType2JDType(ColummName,TableName);
 
-        String SearchCriRec="select *, count(*) as TResults from criminal_details where "+ColummName+" like ?";
+        String SearchCriRec="select *, count(*) over() as TResults from criminal_details where "+ColummName+" like ?";
         PreparedStatement QSCR=db.getConnection().prepareStatement(SearchCriRec);
-        //QSCR.setString(1,ColummName);
-        QSCR.setObject(1,Kdetails);
+        QSCR.setObject(1,"%"+Kdetails+"%");
         ResultSet CriData_rs=QSCR.executeQuery();
 
         boolean DTR=true;//Display total results....
         int CountResult=0;
-        while(CriData_rs.next())
+
+        if(CriData_rs.next())
         {
             if(DTR)
             {
-                /*System.out.println("-----| Total Results Found: " + CriData_rs.getInt("TResults |-----"));
+                System.out.println("-----| Total Results Found: " + CriData_rs.getInt("TResults")+" |-----");
                 CountResult=CriData_rs.getInt("TResults");
 
                 if(CountResult==0)
@@ -502,17 +495,35 @@ public class CRMngrQueries
                     System.out.println("[INFO] No Criminal Record Found in Database....");
                     QSCR.close();
                     return;
-                }*/
-                //else
-                //{
+                }
+                else
+                {
                     System.out.println("Would you like to see AlL Results???");
-                    ans=sc.next().charAt(0);
+                    System.out.print(">>> ");
+                    ans = sc.next().charAt(0);
 
-                    if (ans=='Y'||ans=='y')
+                    if (ans == 'Y' || ans == 'y')
                     {
                         System.out.println("[INFO] Displaying All Results....");
+
+                        do
+                        {
+                            System.out.println
+                                    (
+                                            String.format
+                                                    (
+                                                            "| Criminal ID: %-11s | Name: %-20s | Gender: %-8s | Case ID: %-11s | Crime Type: %-15s | Punishment: %-15s |",
+                                                            CriData_rs.getString("CriminalID"),
+                                                            CriData_rs.getString("Name"),
+                                                            CriData_rs.getString("Gender"),
+                                                            CriData_rs.getString("CaseID"),
+                                                            CriData_rs.getString("CrimeType"),
+                                                            CriData_rs.getString("PunishmentType")
+                                                    )
+                                    );
+                        }while (CriData_rs.next());
                     }
-                    else if(ans=='N'||ans=='n')
+                    else if (ans == 'N' || ans == 'n')
                     {
                         System.out.println("[INFO] Returning to Main Menu....");
                         QSCR.close();
@@ -525,82 +536,64 @@ public class CRMngrQueries
                         return;
                     }
 
-
+                }
                 DTR=false;
             }
 
-            //show all results as log type normal....
-            System.out.println
-                    (
-                            String.format
-                                    (
-                                            "| Criminal ID: %-5d | Name: %-20s | Gender: %-8s | Case ID: %-5d | Crime Type: %-15s | Punishment: %-15s |",
-                                            CriData_rs.getInt("Criminal_ID"),
-                                            CriData_rs.getString("Name"),
-                                            CriData_rs.getString("Gender"),
-                                            CriData_rs.getInt("CaseID"),
-                                            CriData_rs.getString("Crime_Type"),
-                                            CriData_rs.getString("Punishment_Type")
-                                    )
-                    );
+            System.out.print("Enter Criminal ID to see more details about that Criminal Record: ");
+            String criID=sc.next();
 
+            if(!found.isCriFound(criID))
+            {
+                System.err.println("[ERROR] Criminal ID not found....");
+                return;
+            }
 
-            //>>>If Multiple result found then ask for which data do you want....
-            CriminalDetails();
+            if(LSP.LoggedUserID=="")
+            {
+                if(LSP.userLogin())
+                {
+                    CriminalDetails(criID);
+                }
+                else
+                {
+                    System.out.println("[INFO] Can't see Detailed Case Details Without User Login....");
+                    return;
+                }
+            }
+            else
+            {
+                CriminalDetails(criID);
+            }
         }
     }
 
-    void CriminalDetails() throws Exception
+    void CriminalDetails(String criID) throws Exception
     {
-        System.out.println("Enter Criminal ID to see more details about that Criminal Record: ");
-        int criID=sc.nextInt();
-
-        //>>>other Query....
-        String PerSerCriRec="select * from criminal_details where Criminal_ID=?";
+        String PerSerCriRec="select * from criminal_details where CriminalID=?";
         PreparedStatement QPSCR=db.getConnection().prepareStatement(PerSerCriRec);
-        QPSCR.setInt(1,criID);
+        QPSCR.setString(1,criID);
         ResultSet PerCriData_rs=QPSCR.executeQuery();
         PerCriData_rs.next();
 
         System.out.println("-----| Criminal Record Details |-----");
-        System.out.println("Criminal ID: "+PerCriData_rs.getInt("Criminal_ID"));
+        System.out.println("Criminal ID: "+PerCriData_rs.getString("CriminalID"));
         System.out.println("Name: "+PerCriData_rs.getString("Name"));
         System.out.println("Age: "+PerCriData_rs.getInt("Age"));
         System.out.println("Gender: "+PerCriData_rs.getString("Gender"));
-        System.out.println("Case ID: "+PerCriData_rs.getInt("CaseID"));
-        System.out.println("Crime Type: "+PerCriData_rs.getString("Crime_Type"));
-        System.out.println("Crime Date: "+PerCriData_rs.getDate("Crime_Date"));
-        System.out.println("Officer ID: "+PerCriData_rs.getInt("InvestingOfficerID"));
-        System.out.println("Case Status: "+PerCriData_rs.getString("Case_Status"));
-        System.out.println("Punishment: "+PerCriData_rs.getString("Punishment_Type"));
-        System.out.println("Criminal Status: "+PerCriData_rs.getString("Criminal_Status"));
-        System.out.println("Bail Date: "+PerCriData_rs.getDate("Bail_Date"));
-        System.out.println("Release Date: "+PerCriData_rs.getDate("Release_Date"));
+        System.out.println("Case ID: "+PerCriData_rs.getString("CaseID"));
+        System.out.println("Crime Type: "+PerCriData_rs.getString("CrimeType"));
+        System.out.println("Crime Date: "+PerCriData_rs.getDate("CrimeDate"));
+        System.out.println("Officer ID: "+PerCriData_rs.getString("InvestingOfficerID"));
+        System.out.println("Case Status: "+PerCriData_rs.getString("CaseStatus"));
+        System.out.println("Punishment: "+PerCriData_rs.getString("PunishmentType"));
+        System.out.println("Criminal Status: "+PerCriData_rs.getString("CriminalStatus"));
+        System.out.println("Bail Date: "+PerCriData_rs.getDate("BailDate"));
+        System.out.println("Release Date: "+PerCriData_rs.getDate("ReleaseDate"));
         QPSCR.close();
 
-        //>>>
-            /*System.out.println
-                    (
-                            String.format
-                                    (
-                                        "| Criminal ID: %-5d | Name: %-20s | Age: %-3d | Gender: %-8s | Case ID: %-5d | Crime Type: %-15s | Crime Date: %-10s | Officer ID: %-5d | Case Status: %-15s | Punishment: %-15s | Criminal Status: %-15s | Bail Date: %-10s | Release Date: %-10s |",
-                                        PerCriData_rs.getInt("Criminal_ID"),
-                                        PerCriData_rs.getString("Name"),
-                                        PerCriData_rs.getInt("Age"),
-                                        PerCriData_rs.getString("Gender"),
-                                        PerCriData_rs.getInt("CaseID"),
-                                        PerCriData_rs.getString("Crime_Type"),
-                                        PerCriData_rs.getDate("Crime_Date"),
-                                        PerCriData_rs.getInt("InvestingOfficerID"),
-                                        PerCriData_rs.getString("Case_Status"),
-                                        PerCriData_rs.getString("Punishment_Type"),
-                                        PerCriData_rs.getString("Criminal_Status"),
-                                        PerCriData_rs.getDate("Bail_Date"),
-                                        PerCriData_rs.getDate("Release_Date")
-                                    )
-                    )*/
-
         System.out.println("Do you want to see Picture of Criminal???");
+        System.out.print(">>> ");
         char isPic=sc.next().charAt(0);
 
         if (isPic=='Y'||isPic=='y')
@@ -623,11 +616,11 @@ public class CRMngrQueries
     {
         char ans;
 
+        System.out.println("[INFO] Name,Gender,Age,CrimeType,PunishmentType are valid....");
         System.out.print("Enter Details Related about that Criminal or Crime: ");
-        System.out.println("[INFO] Name,Gender,Age,Crime_Type,Punishment_Type are valid....");
         String details=sc.next();
 
-        String UnkSCriRec="select *, count(*) as TResults from criminal_details where Name like ? or Crime_Type like ? or Punishment_Type like ? or Gender like ? or Age like ?";
+        String UnkSCriRec="select *, count(*) over() as TResults from criminal_details where Name like ? or CrimeType like ? or PunishmentType like ? or Gender like ? or Age like ?";
         PreparedStatement QUkSCR=db.getConnection().prepareStatement(UnkSCriRec);
         QUkSCR.setString(1,"%"+details+"%");
         QUkSCR.setString(2,"%"+details+"%");
@@ -638,11 +631,11 @@ public class CRMngrQueries
 
         boolean DTR=true;//Display total results....
         int CountResult=0;
-        while(CriData_rs.next())
+        if(CriData_rs.next())
         {
             if(DTR)
             {
-                System.out.println("-----| Total Results Found: " + CriData_rs.getInt("TResults |-----"));
+                System.out.println("-----| Total Results Found: " + CriData_rs.getInt("TResults")+" |-----");
                 CountResult=CriData_rs.getInt("TResults");
 
                 if(CountResult==0)
@@ -654,11 +647,30 @@ public class CRMngrQueries
                 else
                 {
                     System.out.println("Would you like to see AlL Results???");
+                    System.out.print(">>> ");
                     ans=sc.next().charAt(0);
 
                     if (ans=='Y'||ans=='y')
                     {
                         System.out.println("[INFO] Displaying All Results....");
+
+                        do
+                        {
+                            System.out.println
+                                    (
+                                            String.format
+                                                    (
+                                                            "| Criminal ID: %-11s | Name: %-20s | Gender: %-8s | Case ID: %-11s | Crime Type: %-15s | Punishment: %-15s |",
+                                                            CriData_rs.getString("CriminalID"),
+                                                            CriData_rs.getString("Name"),
+                                                            CriData_rs.getString("Gender"),
+                                                            CriData_rs.getString("CaseID"),
+                                                            CriData_rs.getString("CrimeType"),
+                                                            CriData_rs.getString("PunishmentType")
+                                                    )
+                                    );
+
+                        }while (CriData_rs.next());
                     }
                     else if(ans=='N'||ans=='n')
                     {
@@ -677,24 +689,31 @@ public class CRMngrQueries
                 DTR=false;
             }
 
-            //show all results as log type normal....
-            System.out.println
-                    (
-                            String.format
-                                    (
-                                            "| Criminal ID: %-5d | Name: %-20s | Gender: %-8s | Case ID: %-5d | Crime Type: %-15s | Punishment: %-15s |",
-                                            CriData_rs.getInt("Criminal_ID"),
-                                            CriData_rs.getString("Name"),
-                                            CriData_rs.getString("Gender"),
-                                            CriData_rs.getInt("CaseID"),
-                                            CriData_rs.getString("Crime_Type"),
-                                            CriData_rs.getString("Punishment_Type")
-                                    )
-                    );
+            System.out.print("Enter Criminal ID to see more details about that Criminal Record: ");
+            String criID=sc.next();
 
+            if(!found.isCriFound(criID))
+            {
+                System.err.println("[ERROR] Criminal ID not found....");
+                return;
+            }
 
-            //>>>If Multiple result found then ask for which data do you want....
-            CriminalDetails();
+            if(LSP.LoggedUserID=="")
+            {
+                if(LSP.userLogin())
+                {
+                    CriminalDetails(criID);
+                }
+                else
+                {
+                    System.out.println("[INFO] Can't see Detailed Case Details Without User Login....");
+                    return;
+                }
+            }
+            else
+            {
+                CriminalDetails(criID);
+            }
         }
     }
 }

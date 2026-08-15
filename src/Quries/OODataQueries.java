@@ -1,6 +1,7 @@
 package Quries;
 
-import DataBase.DataBase;
+import DataBase.Database;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Scanner;
@@ -8,56 +9,71 @@ import java.util.Scanner;
 public class OODataQueries
 {
     Scanner sc=new Scanner(System.in);
-    DataBase db=new DataBase();
+    Database db=new Database();
 
     public Object SQLDType2JDType(String ColummName, String TName) throws Exception
     {
-        String Datatype = "Select ColummDataType(?,?)";
+        String Datatype = "SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?";
         PreparedStatement DT = db.getConnection().prepareStatement(Datatype);
-        DT.setString(1, ColummName);
-        DT.setString(2, TName);
+        DT.setString(1, TName);
+        DT.setString(2, ColummName);
         ResultSet DTrs = DT.executeQuery();
 
-        DTrs.next();
-        //System.out.println("[INFO] Column DataType of "+ColummName+" in Table "+TName+" is: "+DTrs.getString(1));
-        String Data_Type = DTrs.getString(1);
+        String Data_Type = "VARCHAR";
+        if (DTrs.next())
+        {
+            Data_Type = DTrs.getString(1);
+        }
+        DTrs.close();
+        DT.close();
+        
         Data_Type = Data_Type.toUpperCase();
 
         switch (Data_Type)
         {
             case "VARCHAR":
+            case "TEXT":
+            case "LONGTEXT":
             {
-                String UData = sc.next();
+                String UData = "";
+                while (UData.isEmpty())
+                {
+                    UData = sc.nextLine().trim();
+                }
                 return UData;
-                //break;
             }
 
             case "INT":
+            case "INTEGER":
+            case "YEAR":
             {
                 int UData = sc.nextInt();
                 return UData;
-                //break;
             }
 
             case "DATE":
             {
                 String UData = sc.next();
                 return UData;
-                //break;
             }
 
             case "DECIMAL":
+            case "DOUBLE":
+            case "FLOAT":
             {
                 double UData = sc.nextDouble();
                 return UData;
-
             }
 
             default:
             {
-                System.err.println("[WARNING] Column DataType of " + ColummName + " in Database " + TName + " is: " + DTrs.getString(1));
-                System.err.println(" which is not supported for updating in Database....");
-                return null;
+                System.err.println("[WARNING] Column DataType of " + ColummName + " in Table " + TName + " is: " + Data_Type + " which is not fully supported, defaulting to String.");
+                String UData = "";
+                while (UData.isEmpty())
+                {
+                    UData = sc.nextLine().trim();
+                }
+                return UData;
             }
         }
     }

@@ -1,7 +1,9 @@
 package Quries;
 
-import DataBase.DataBase;
+import DataBase.DataFound;
+import DataBase.Database;
 import Profile.Login_SignUpPage;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Scanner;
@@ -9,12 +11,14 @@ import java.util.Scanner;
 public class Login_SignUp_Queries
 {
     Scanner sc=new Scanner(System.in);
-    DataBase db=new DataBase();
+    Database db=new Database();
+    DataFound found=new DataFound();
+
     String role="Citizen";
 
     public boolean SignUpQuery(String name,String email,String mobile,String passwd,String dob,String userID) throws Exception
     {
-        String SignUp = "INSERT INTO users (Users_name,EmailId,MobileNo,Password,DOB,UserId,Role) VALUES (?,?,?,?,?,?,?)";
+        String SignUp = "INSERT INTO users (UsersName,EmailID,MobileNo,Password,DOB,UserID,Role) VALUES (?,?,?,?,?,?,?)";
 
         PreparedStatement QSU = db.getConnection().prepareStatement(SignUp);
 
@@ -39,45 +43,20 @@ public class Login_SignUp_Queries
         return false;
     }
 
-    public boolean isUSer(String uId,String pass) throws Exception
-    {
-        String isUser = "SELECT COUNT(*) FROM users WHERE UserID = ?";
-        PreparedStatement QiU = db.getConnection().prepareStatement(isUser);
-        QiU.setString(1, uId);
-
-        ResultSet isU_rs = QiU.executeQuery();
-
-        isU_rs.next();
-
-        int count = isU_rs.getInt(1);
-
-        if (count > 0)
-        {
-            return true;
-        }
-        else
-        {
-            System.err.println("[NOT FOUND] User Not Found....");
-            return false;
-        }
-    }
-
     public boolean LoginQuery(String uId,String pass) throws Exception
     {
-        String Login =
-                "SELECT UserId FROM users WHERE UserId=? AND Password=?";
+        String Login = "SELECT UserID,Role FROM users WHERE UserID=? AND Password=?";
 
-        PreparedStatement Qlogin =
-                db.getConnection().prepareStatement(Login);
+        PreparedStatement Qlogin = db.getConnection().prepareStatement(Login);
 
         Qlogin.setString(1,uId);
         Qlogin.setString(2,pass);
-
         ResultSet rs=Qlogin.executeQuery();
 
         if(rs.next())
         {
             Login_SignUpPage.LoggedUserID=uId;
+            Login_SignUpPage.LoggedUserRole=rs.getString("Role");
 
             rs.close();
             Qlogin.close();
@@ -95,33 +74,31 @@ public class Login_SignUp_Queries
     {
         System.out.println("Enter your User ID or Email ID: ");
         String uId=sc.next();
-        String pass="";
 
-        //>>>Input of mobile number and give oldpass as otp with timeout thread if both match then update the password....
-        //>>>it is pending....
-
-        if(isUSer(uId,pass))
+        if(found.isUSer(uId))
         {
             System.out.println("Enter your new Password: ");
             String pass2 = sc.next();
 
-            String ForgetPass = "update users set Password=? where UserId=?";
+            String ForgetPass = "update users set Password=? where UserID=? or EmailID=?";
             PreparedStatement QFPass = db.getConnection().prepareStatement(ForgetPass);
             QFPass.setString(1, pass2);
             QFPass.setString(2, uId);
+            QFPass.setString(3, uId);
             int run = QFPass.executeUpdate();
 
             if (run > 0)
             {
-                System.out.println("[DONE'] Password Updated Successfully....");
+                System.out.println("[DONE] Password Updated Successfully....");
+                QFPass.close();
                 return;
             }
             else
             {
                 System.err.println("[FAILED] Password Updation Failed....");
+                QFPass.close();
                 return;
             }
         }
     }
-
 }
