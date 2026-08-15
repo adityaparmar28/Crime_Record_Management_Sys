@@ -82,40 +82,36 @@ We are actively expanding CRMS. In the next release, we are replacing the standa
 
 ## 📂 Project Directory Structure
 
+Here is how all the classes are organized inside the `src` package:
+
 ```text
-v103/
-├── .idea/                 # IntelliJ IDEA configuration files
-├── src/                   # Source directory for the Java application
-│   ├── DataBase/          # Database configuration, connection management, schema validation & data seeding
-│   │   ├── CreateTable.java
-│   │   ├── Database.java
-│   │   ├── DataFound.java
-│   │   ├── InsertData.java
-│   │   └── Validation.java
-│   ├── DataStructure/     # Files and local report exports
-│   │   └── IOFiles.java
-│   ├── Layout/            # Command Line Interface (CLI) menus & user layouts
-│   │   ├── Dashboard.java
-│   │   ├── CrimeMngr.java
-│   │   ├── CRMngr.java
-│   │   ├── DIG.java
-│   │   └── Investigation.java
-│   ├── Profile/           # User authentication and profile settings
-│   │   ├── Login_SignUpPage.java
-│   │   └── User.java
-│   ├── Quries/            # Raw SQL Query execution files for database operations
-│   │   ├── CRMngrQueries.java
-│   │   ├── CrimeMngrQueries.java
-│   │   ├── DIGQueries.java
-│   │   ├── IAQueries.java
-│   │   ├── Login_SignUp_Queries.java
-│   │   ├── OODataQueries.java
-│   │   └── UserQuries.java
-│   └── Main.java
-├── CasesData.txt          # Active exported database
-├── OfficerData.txt        # Active officer roster export
-├── README.md              # Documentation
-└── v103.iml               # IntelliJ module file
+src/
+├── DataBase/                   # Database configuration, creation, and seeding
+│   ├── CreateTable.java        # Defines SQL schemas (tables, columns, primary keys, foreign keys)
+│   ├── Database.java           # Handles MySQL JDBC connection lifecycle & sync thread
+│   ├── DataFound.java          # Utilities to verify if records exist
+│   ├── InsertData.java         # Populates tables with default seed/sample data
+│   └── Validation.java         # Form validation queries (email patterns, age, etc.)
+├── DataStructure/              # Files and reports exporter
+│   └── IOFiles.java            # Generates local .txt reports (Cases, Officers, FIRs)
+├── Layout/                     # CLI navigation pages and user menus
+│   ├── CRMngr.java             # Criminal Record Manager menu flow
+│   ├── CrimeMngr.java          # Crime & FIR management menu flow
+│   ├── DIG.java                # Police Officer Directory menu flow
+│   ├── Dashboard.java          # Main navigation dashboard hub
+│   └── Investigation.java      # Pending case tracking & assignment portal
+├── Profile/                    # User registration and identity modules
+│   ├── Login_SignUpPage.java   # Login/Signup logic for Citizens and Officers
+│   └── User.java               # Citizen profile menu flow
+├── Quries/                     # Raw SQL statement execution layers
+│   ├── CRMngrQueries.java      # CRUD queries for criminals
+│   ├── CrimeMngrQueries.java   # Queries for filing FIRs and tracking cases
+│   ├── DIGQueries.java         # Queries for managing police officer accounts
+│   ├── IAQueries.java          # Investigation-specific assignment queries
+│   ├── Login_SignUp_Queries.java # Queries for handling authentication
+│   ├── OODataQueries.java      # Queries to fetch specific officer logs
+│   └── UserQuries.java         # Queries for updating citizen user profiles
+└── Main.java                   # Bootloader / Application entry point
 ```
 
 ---
