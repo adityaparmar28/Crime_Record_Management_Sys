@@ -82,37 +82,41 @@ We are actively expanding CRMS. In the next release, we are replacing the standa
 
 ## 📂 Project Directory Structure
 
-Here is how all the classes are organized inside the `src` package:
-
 ```text
-src/
-├── DataBase/                   # Database configuration, creation, and seeding
-│   ├── CreateTable.java
-│   ├── Database.java
-│   ├── DataFound.java
-│   ├── InsertData.java
-│   ├── table_relation_schema.png
-│   └── Validation.java
-├── DataStructure/              # Files and reports exporter
-│   └── IOFiles.java
-├── Layout/                     # CLI navigation pages and user menus
-│   ├── CRMngr.java
-│   ├── CrimeMngr.java
-│   ├── DIG.java
-│   ├── Dashboard.java
-│   └── Investigation.java
-├── Profile/                    # User registration and identity modules
-│   ├── Login_SignUpPage.java
-│   └── User.java
-├── Quries/                     # Raw SQL statement execution layers
-│   ├── CRMngrQueries.java
-│   ├── CrimeMngrQueries.java
-│   ├── DIGQueries.java
-│   ├── IAQueries.java
-│   ├── Login_SignUp_Queries.java
-│   ├── OODataQueries.java
-│   └── UserQuries.java
-└── Main.java
+v103/
+├── .idea/                 # IntelliJ IDEA configuration files
+├── src/                   # Source directory for the Java application
+│   ├── DataBase/          # Database configuration, connection management, schema validation & data seeding
+│   │   ├── CreateTable.java
+│   │   ├── Database.java
+│   │   ├── DataFound.java
+│   │   ├── InsertData.java
+│   │   ├── table_relation_schema.png # Database relationship schema diagram
+│   │   └── Validation.java
+│   ├── DataStructure/     # Files and local report exports
+│   │   └── IOFiles.java
+│   ├── Layout/            # Command Line Interface (CLI) menus & user layouts
+│   │   ├── Dashboard.java
+│   │   ├── CrimeMngr.java
+│   │   ├── CRMngr.java
+│   │   ├── DIG.java
+│   │   └── Investigation.java
+│   ├── Profile/           # User authentication and profile settings
+│   │   ├── Login_SignUpPage.java
+│   │   └── User.java
+│   ├── Quries/            # Raw SQL Query execution files for database operations
+│   │   ├── CRMngrQueries.java
+│   │   ├── CrimeMngrQueries.java
+│   │   ├── DIGQueries.java
+│   │   ├── IAQueries.java
+│   │   ├── Login_SignUp_Queries.java
+│   │   ├── OODataQueries.java
+│   │   └── UserQuries.java
+│   └── Main.java
+├── CasesData.txt          # Active exported database
+├── OfficerData.txt        # Active officer roster export
+├── README.md              # Documentation
+└── v103.iml               # IntelliJ module file
 ```
 
 ---
