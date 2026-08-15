@@ -91,6 +91,7 @@ src/
 │   ├── Database.java
 │   ├── DataFound.java
 │   ├── InsertData.java
+│   ├── table_relation_schema.png
 │   └── Validation.java
 ├── DataStructure/              # Files and reports exporter
 │   └── IOFiles.java
