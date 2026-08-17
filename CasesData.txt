@@ -2,6 +2,16 @@
 
 ----------------------------------------------------------------------------------------------
 
+ | Case ID: A34567 |
+ | Criminal ID: A567 |
+ | Investigating Officer ID: null |
+ | Case: sdfg iuytre sdfg t |
+ | Case Type: asdghj | Crime Location: asfg qwert | Crime Weapon: wrtyu
+ | Criminal or Suspect Name: asdf jhfd | Victim Name: wdc iuhvwdf trfgd
+ | Case Description: weth riu werty sdfghyf wertyujh ergvc thgf tyhgvc eiuyt  | Case Status: Pending
+
+----------------------------------------------------------------------------------------------
+
  | Case ID: A7645 |
  | Criminal ID: A545 |
  | Investigating Officer ID: TRO403 |
@@ -9,6 +19,16 @@
  | Case Type: Accident | Crime Location: ahmedabad | Crime Weapon: null
  | Criminal or Suspect Name: jhgs | Victim Name: erfgn
  | Case Description: vehicle slipped | Case Status: Pending
+
+----------------------------------------------------------------------------------------------
+
+ | Case ID: C9876 |
+ | Criminal ID: C576 |
+ | Investigating Officer ID: null |
+ | Case: Cyber Crime qwrtyu |
+ | Case Type: Cyber Crime | Crime Location: qwdfghiuyt | Crime Weapon: Proxy
+ | Criminal or Suspect Name: weoiig oijhg rtegsdj t | Victim Name: iewruth wkjrf iiukjrsg
+ | Case Description: eirwqtehv roiewtuq jnriuewt hjrwqite | Case Status: Pending
 
 ----------------------------------------------------------------------------------------------
 
@@ -44,11 +64,11 @@
 
  | Case ID: K1007 |
  | Criminal ID: K507 |
- | Investigating Officer ID: null |
+ | Investigating Officer ID: 5855 |
  | Case: Child Abduction |
  | Case Type: Kidnapping | Crime Location: Junagadh | Crime Weapon: Chloroform
  | Criminal or Suspect Name: Farhan Ali | Victim Name: Sita Devi
- | Case Description: Abduction of 8-year-old child | Case Status: Solved
+ | Case Description: Abduction of 8-year-old child | Case Status: Investigating
 
 ----------------------------------------------------------------------------------------------
 
@@ -79,6 +99,26 @@
  | Case Type: Murder | Crime Location: Vadodara | Crime Weapon: Poison
  | Criminal or Suspect Name: Aisha Begum | Victim Name: Zaheer Khan
  | Case Description: Suspected poisoning case | Case Status: Pending
+
+----------------------------------------------------------------------------------------------
+
+ | Case ID: M685 |
+ | Criminal ID: M585 |
+ | Investigating Officer ID: null |
+ | Case: Murder by Rifle |
+ | Case Type: Murder | Crime Location: Ahmedabad | Crime Weapon: Rifle
+ | Criminal or Suspect Name: Qwertyu Poiuyt | Victim Name: Asdfgh Lkjhgf Tfchnm
+ | Case Description: Qwertyuipoiuy Poiuytrew Adfghjkl Lkjhgfdsa Zxcvbnm Mnbvcxz Qwdfv Poijhgc | Case Status: Pending
+
+----------------------------------------------------------------------------------------------
+
+ | Case ID: M8765 |
+ | Criminal ID: M565 |
+ | Investigating Officer ID: null |
+ | Case: Q kill A by Rifle |
+ | Case Type: Murder | Crime Location: Ahmedabad Gujarat | Crime Weapon: Rifle
+ | Criminal or Suspect Name: Qwertyuiop Poiuytrewq | Victim Name: Asdfghjkl Lkjhgfdsa
+ | Case Description: Qqwertyuiop Poiuytrewq kill Asdfghjkl Lkjhgfdsa Zxcvbnm Mnbvcxz Qwsdcpkn Pijnbwdfv | Case Status: Pending
 
 ----------------------------------------------------------------------------------------------
 
