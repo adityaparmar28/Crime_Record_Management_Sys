@@ -1,5 +1,7 @@
 # 🚨 Crime Record Management System (CRMS) - v103
 
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 ```text
   _____  _____   __  __  _____ 
  / ____||  __ \ |  \/  |/ ____|
@@ -203,6 +205,8 @@ java -cp "out;path/to/mysql-connector-j-9.3.0.jar" CRMS
 
 ---
 
-## 📜 License
+## 📄 License
 
-This project is open-source, licensed under the [MIT License](LICENSE).
+This project is licensed under the **Apache License 2.0**. See the [LICENSE](LICENSE) file for details.
+
+Copyright © 2026 MR. ADITYA PARMAR. All rights reserved.
