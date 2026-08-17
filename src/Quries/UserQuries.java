@@ -38,7 +38,7 @@ public class UserQuries
     {
         String Profile = "SELECT UsersName,UserID,Role,EmailID,MobileNo,DOB FROM users WHERE UserID=?";
 
-        PreparedStatement QPro = db.getConnection().prepareStatement(Profile);
+        PreparedStatement QPro = Database.getConnection().prepareStatement(Profile);
 
         QPro.setString(1,Login_SignUpPage.LoggedUserID);
 
@@ -101,8 +101,7 @@ public class UserQuries
 
         String sql="UPDATE users SET "+column+"=? WHERE UserID=?";
 
-        PreparedStatement ps=
-                db.getConnection().prepareStatement(sql);
+        PreparedStatement ps= Database.getConnection().prepareStatement(sql);
 
         ps.setObject(1,value);
         ps.setString(2,LoggedId);
@@ -110,7 +109,10 @@ public class UserQuries
         int run=ps.executeUpdate();
 
         if(run>0)
+        {
             System.out.println("Profile Updated Successfully.");
+            DataStructure.DataStructure.ActivityLog.push("Updated profile field '" + column + "' for user: " + LoggedId);
+        }
         else
             System.out.println("Profile Update Failed.");
 

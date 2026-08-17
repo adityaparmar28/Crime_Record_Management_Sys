@@ -29,7 +29,7 @@ public class OODataQueries
     public Object SQLDType2JDType(String ColummName, String TName) throws Exception
     {
         String Datatype = "SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?";
-        PreparedStatement DT = db.getConnection().prepareStatement(Datatype);
+        PreparedStatement DT = Database.getConnection().prepareStatement(Datatype);
         DT.setString(1, TName);
         DT.setString(2, ColummName);
         ResultSet DTrs = DT.executeQuery();

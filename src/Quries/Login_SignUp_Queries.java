@@ -35,7 +35,7 @@ public class Login_SignUp_Queries
     {
         String SignUp = "INSERT INTO users (UsersName,EmailID,MobileNo,Password,DOB,UserID,Role) VALUES (?,?,?,?,?,?,?)";
 
-        PreparedStatement QSU = db.getConnection().prepareStatement(SignUp);
+        PreparedStatement QSU = Database.getConnection().prepareStatement(SignUp);
 
         QSU.setString(1, name);
         QSU.setString(2, email);
@@ -51,6 +51,8 @@ public class Login_SignUp_Queries
         if(run>0)
         {
             System.out.println("[UPDATED] User SignedUp Successfully....");
+            Login_SignUpPage.lastActionTime = System.currentTimeMillis();
+            DataStructure.DataStructure.ActivityLog.push("Signed up new user: " + userID);
             return true;
         }
 
@@ -62,7 +64,7 @@ public class Login_SignUp_Queries
     {
         String Login = "SELECT UserID,Role FROM users WHERE UserID=? AND Password=?";
 
-        PreparedStatement Qlogin = db.getConnection().prepareStatement(Login);
+        PreparedStatement Qlogin = Database.getConnection().prepareStatement(Login);
 
         Qlogin.setString(1,uId);
         Qlogin.setString(2,pass);
@@ -72,7 +74,9 @@ public class Login_SignUp_Queries
         {
             Login_SignUpPage.LoggedUserID=uId;
             Login_SignUpPage.LoggedUserRole=rs.getString("Role");
+            Login_SignUpPage.lastActionTime = System.currentTimeMillis();
 
+            DataStructure.DataStructure.ActivityLog.push("Logged in user: " + uId + " (" + Login_SignUpPage.LoggedUserRole + ")");
             rs.close();
             Qlogin.close();
             return true;
@@ -96,23 +100,25 @@ public class Login_SignUp_Queries
             String pass2 = sc.next();
 
             String ForgetPass = "update users set Password=? where UserID=? or EmailID=?";
-            PreparedStatement QFPass = db.getConnection().prepareStatement(ForgetPass);
+            PreparedStatement QFPass = Database.getConnection().prepareStatement(ForgetPass);
             QFPass.setString(1, pass2);
             QFPass.setString(2, uId);
             QFPass.setString(3, uId);
+
+            /**Yaha OTP Gen Thread bolana pending hai....woh otp match hoga toh hi execute hoga else no....**/
+
             int run = QFPass.executeUpdate();
 
             if (run > 0)
             {
                 System.out.println("[DONE] Password Updated Successfully....");
+                DataStructure.DataStructure.ActivityLog.push("Updated password for user: " + uId);
                 QFPass.close();
-                return;
             }
             else
             {
                 System.err.println("[FAILED] Password Updation Failed....");
                 QFPass.close();
-                return;
             }
         }
     }

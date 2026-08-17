@@ -24,15 +24,17 @@ import Profile.Login_SignUpPage;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.Queue;
+import java.util.Objects;
 import java.util.Scanner;
+import DataStructure.CustomPriorityQueue;
+import DataStructure.CustomDoublyLinkList;
 
 public class CrimeMngrQueries
 {
     Scanner sc=new Scanner(System.in);
     Database db=new Database();
     OODataQueries OODQ=new OODataQueries();
-    Queue<String> PCS=DataStructure.PendingCase;
+    CustomPriorityQueue PCS=DataStructure.PendingCase;
     IOFiles IOF=new IOFiles();
     Validation v=new Validation();
     DataFound found=new DataFound();
@@ -47,13 +49,62 @@ public class CrimeMngrQueries
         System.out.println("---------------------------------------------------------");
         System.out.println();
 
-        String CType=v.readAlphaString("Enter Case Type: ");
-        char CtypeAlpha=CType.toUpperCase().charAt(0);
+        String CType = "";
+        String prefix = "";
+
+        while (true)
+        {
+            CType = v.readNonEmptyString("Enter Case Type: ");
+            String crimeLower = CType.trim().toLowerCase();
+
+            if (crimeLower.contains("cyber"))
+            {
+                CType = "Cyber Crime";
+                prefix = "CY";
+                break;
+            }
+            else if (crimeLower.contains("robbery"))
+            {
+                CType = "Robbery";
+                prefix = "R";
+                break;
+            }
+            else if (crimeLower.contains("murder"))
+            {
+                CType = "Murder";
+                prefix = "M";
+                break;
+            }
+            else if (crimeLower.contains("kidnap"))
+            {
+                CType = "Kidnapping";
+                prefix = "K";
+                break;
+            }
+            else if (crimeLower.contains("drug"))
+            {
+                CType = "Drug Crime";
+                prefix = "D";
+                break;
+            }
+            else if (crimeLower.contains("traffic"))
+            {
+                CType = "Traffic Violation";
+                prefix = "T";
+                break;
+            }
+            else
+            {
+                System.err.println("[INVALID] Invalid Case Type. Valid case types are: Robbery, Cyber Crime, Murder, Kidnapping, Drug Crime, Traffic Violation.");
+            }
+        }
 
         String CDate=v.Date("Enter Crime Date: ");
 
-        String CaseID=v.readNonEmptyString("Enter Case ID (Numeric part, e.g. 1001): ");
-        String Case_ID=CtypeAlpha + CaseID;
+        System.out.print("Enter Case ID: " + prefix);
+        String CaseID = sc.next();
+        sc.nextLine(); // Consume rest of line
+        String Case_ID = prefix + CaseID;
 
         String CLocation=v.readAlphaString("Enter Crime Location: ");
 
@@ -93,14 +144,57 @@ public class CrimeMngrQueries
 
         String CName=v.readAlphaString("Enter Case Name: ");
 
-        db.con.setAutoCommit(false);
+        Database.con.setAutoCommit(false);
 
-        String CriminalID = CtypeAlpha + "5" + (CaseID.length() >= 2 ? CaseID.substring(CaseID.length()-2) : CaseID);
+        String CriminalID = prefix + "5" + (CaseID.length() >= 2 ? CaseID.substring(CaseID.length()-2) : CaseID);
+
+        System.out.println("Do you have Suspect Picture???");
+        char picQ=sc.next().toUpperCase().charAt(0);
+
+        if(picQ=='Y')
+        {
+            boolean isPic=false;
+
+            while (!isPic)
+            {
+                System.out.println("Enter Picture Path in Double Quote: ");
+                String path = sc.next();
+
+                if (path == null)
+                {
+                    System.out.println("[WARNING] Thre is no Picture to Update....");
+                    isPic=false;
+                    return;
+                }
+
+                if (!(path.contains(".jpg") || path.contains(".jpeg") || path.contains(".png")))
+                {
+                    System.err.println("[INVALID] Invalid Picture extention....");
+                    System.out.println("[VALID] Only PNG, JPEG, JPG format pictures are allowed....");
+                    isPic=false;
+                    return;
+                }
+
+                IOF.InsertCriminalPic(CriminalID, path);
+                isPic=true;
+            }
+        }
+        else if (picQ=='N')
+        {
+            return;
+        }
+        else
+        {
+            System.err.println("[ERROR] Invalid Input....");
+            System.out.println("[INFO] Considering Picture as NA....");
+            return;
+        }
+
 
         // 1. Insert into case_details (leaving CriminalID NULL initially to avoid FK constraint fail)
         String FileFIR="insert into case_details(CaseID,CaseType,CrimeLocation,CrimeWeapon,SuspectName,VictimName,CrimeDetails,CaseName) values(?,?,?,?,?,?,?,?)";
 
-        PreparedStatement QFIR=db.getConnection().prepareStatement(FileFIR);
+        PreparedStatement QFIR= Database.getConnection().prepareStatement(FileFIR);
         QFIR.setString(1,Case_ID);
         QFIR.setString(2,CType);
         QFIR.setString(3,CLocation);
@@ -114,7 +208,7 @@ public class CrimeMngrQueries
         // 2. Insert into criminal_details
         String AddCriData="insert into criminal_details(CriminalID,Name,Age,Gender,CaseID,CrimeType,CrimeDate) values(?,?,?,?,?,?,?)";
 
-        PreparedStatement QACriData=db.getConnection().prepareStatement(AddCriData);
+        PreparedStatement QACriData= Database.getConnection().prepareStatement(AddCriData);
         QACriData.setString(1,CriminalID);
         QACriData.setString(2,SuspectName);
         QACriData.setInt(3,0);
@@ -127,7 +221,7 @@ public class CrimeMngrQueries
         // 3. Update case_details to link the CriminalID (which now exists in criminal_details)
         String LinkCriCase = "update case_details set CriminalID=? where CaseID=?";
 
-        PreparedStatement QLinkCriCase = db.getConnection().prepareStatement(LinkCriCase);
+        PreparedStatement QLinkCriCase = Database.getConnection().prepareStatement(LinkCriCase);
         QLinkCriCase.setString(1, CriminalID);
         QLinkCriCase.setString(2, Case_ID);
         int linkUpdate = QLinkCriCase.executeUpdate();
@@ -135,7 +229,7 @@ public class CrimeMngrQueries
         // 4. Add picture placeholder details to Criminal_Pictures
         String AddCriPic = "insert into Criminal_Pictures(CriminalID,CaseID,CriminalName) values(?,?,?)";
 
-        PreparedStatement QACriPic = db.getConnection().prepareStatement(AddCriPic);
+        PreparedStatement QACriPic = Database.getConnection().prepareStatement(AddCriPic);
         QACriPic.setString(1, CriminalID);
         QACriPic.setString(2, Case_ID);
         QACriPic.setString(3, SuspectName);
@@ -145,7 +239,8 @@ public class CrimeMngrQueries
         {
             System.out.println("[UPDATED] FIR report filed successfully...");
 
-            db.con.commit();
+            Database.con.commit();
+            DataStructure.ActivityLog.push("Filed FIR report with Case ID: " + Case_ID);
 
             /**>>>FIR IO File Showing.....**/
             IOF.FetchFIR(Case_ID,CDate);
@@ -159,7 +254,7 @@ public class CrimeMngrQueries
         {
             System.err.println("[ERROR] Failed to file FIR....Try again...");
 
-            db.con.rollback();
+            Database.con.rollback();
             QFIR.close();
             QACriData.close();
             QLinkCriCase.close();
@@ -202,7 +297,7 @@ public class CrimeMngrQueries
 
         String SearchCaseRec = "select *, count(*) over() as TResults from case_details where " + ColummName + " like ?";
 
-        PreparedStatement QSOR = db.getConnection().prepareStatement(SearchCaseRec);
+        PreparedStatement QSOR = Database.getConnection().prepareStatement(SearchCaseRec);
         QSOR.setObject(1,"%"+Kdetails+"%");
         ResultSet CaseD_rs = QSOR.executeQuery();
 
@@ -224,28 +319,42 @@ public class CrimeMngrQueries
                 }
                 else
                 {
+                    CustomDoublyLinkList DLL = new CustomDoublyLinkList();
+                    do
+                    {
+                        String recordStr = String.format(
+                                "| Case ID: %-11s | Case Type: %-20s | Case Status: %-15s | Description: %-50s |",
+                                CaseD_rs.getString("CaseID"),
+                                CaseD_rs.getString("CaseType"),
+                                CaseD_rs.getString("CaseStatus"),
+                                CaseD_rs.getString("CrimeDetails")
+                        );
+                        DLL.InsertLast(recordStr);
+                    } while (CaseD_rs.next());
+
                     System.out.println("Would you like to see AlL Results???");
                     System.out.print(">>> ");
                     ans = sc.next().charAt(0);
 
                     if (ans == 'Y' || ans == 'y')
                     {
-                        System.out.println("[INFO] Displaying All Results....");
-                        do
-                        {
-                            System.out.println
-                                    (
-                                            String.format
-                                                    (
-                                                            "| Case ID: %-11s | Case Type: %-20s | Case Status: %-15s | Description: %-50s |",
-                                                            CaseD_rs.getString("CaseID"),
-                                                            CaseD_rs.getString("CaseType"),
-                                                            CaseD_rs.getString("CaseStatus"),
-                                                            CaseD_rs.getString("CrimeDetails")
-                                                    )
-                                    );
-                        } while (CaseD_rs.next());
+                        System.out.println("Do you want to navigate these records interactively??? (yes/no)");
+                        System.out.print(">>> ");
+                        char navAns = sc.next().toLowerCase().charAt(0);
 
+                        if (navAns == 'y')
+                        {
+                            System.out.println("+-------------------------------------------------------------------------------------------------------------------+");
+                            System.out.println("[INFO] Here, don’t ask every time whether to show next or previous travel records....");
+                            System.out.println("[INFO] Handle the Data watching direction automatically based on your choice/input....");
+                            System.out.println("[INFO] [Navigation Method] |>>> [N]ext Record | [P]revious Record | [E]xit Navigation <<<|");
+                            System.out.println("+-------------------------------------------------------------------------------------------------------------------+");
+                            DLL.DLLTravalser(sc);
+                        }
+                        else
+                        {
+                            DLL.DisplayAllData();
+                        }
                         DTR = false;
                     }
                     else if (ans == 'N' || ans == 'n')
@@ -274,7 +383,7 @@ public class CrimeMngrQueries
                 return;
             }
 
-            if(LSP.LoggedUserID=="")
+            if(Login_SignUpPage.LoggedUserID =="")
             {
                 if(LSP.userLogin())
                 {
@@ -283,7 +392,6 @@ public class CrimeMngrQueries
                 else
                 {
                     System.out.println("[INFO] Can't see Detailed Case Details Without User Login....");
-                    return;
                 }
             }
             else
@@ -296,7 +404,7 @@ public class CrimeMngrQueries
     void CaseDetails(String caseID) throws Exception
     {
         String PerSCaseRec="select * from case_details where CaseID=?";
-        PreparedStatement QPSR=db.getConnection().prepareStatement(PerSCaseRec);
+        PreparedStatement QPSR= Database.getConnection().prepareStatement(PerSCaseRec);
         QPSR.setString(1,caseID);
         ResultSet PerCaseD=QPSR.executeQuery();
 
@@ -315,6 +423,25 @@ public class CrimeMngrQueries
         System.out.println("Case Status: "+PerCaseD.getString("CaseStatus"));
         System.out.println("---------------------------------------------------------------------------");
         QPSR.close();
+        DataStructure.ActivityLog.push("Viewed case details for Case ID: " + caseID);
+
+        System.out.println("Do you want to see Picture of Criminal???");
+        System.out.print(">>> ");
+        char isPic=sc.next().charAt(0);
+
+        if (isPic=='Y'||isPic=='y')
+        {
+            //fetch criminal photo from database and display it....
+            IOF.FetchCriPic(caseID);
+        }
+        else if(isPic=='N'||isPic=='n')
+        {
+            System.out.println("[INFO] Returning to Main Menu....");
+        }
+        else
+        {
+            System.err.println("[INVALID] Give Answer only by Yes or No...");
+        }
     }
 
     void UnkSCaseRec() throws Exception
@@ -327,7 +454,7 @@ public class CrimeMngrQueries
 
         String UnkSCaseRec="select *, count(*) over() as TResults from case_details where CaseName like ? or CrimeLocation like ? or CrimeWeapon like ? or SuspectName like ? or VictimName like ?";
 
-        PreparedStatement QUkSCR=db.getConnection().prepareStatement(UnkSCaseRec);
+        PreparedStatement QUkSCR= Database.getConnection().prepareStatement(UnkSCaseRec);
         QUkSCR.setString(1,"%"+details+"%");
         QUkSCR.setString(2,"%"+details+"%");
         QUkSCR.setString(3,"%"+details+"%");
@@ -353,28 +480,42 @@ public class CrimeMngrQueries
                 }
                 else
                 {
+                    CustomDoublyLinkList DLL = new CustomDoublyLinkList();
+                    do
+                    {
+                        String recordStr = String.format(
+                                "| Case ID: %-11s | Case Type: %-20s | Case Status: %-15s | Description: %-50s |",
+                                CaseD_rs.getString("CaseID"),
+                                CaseD_rs.getString("CaseType"),
+                                CaseD_rs.getString("CaseStatus"),
+                                CaseD_rs.getString("CrimeDetails")
+                        );
+                        DLL.InsertLast(recordStr);
+                    } while (CaseD_rs.next());
+
                     System.out.println("Would you like to see AlL Results???");
                     System.out.print(">>> ");
                     ans=sc.next().charAt(0);
 
                     if (ans=='Y'||ans=='y')
                     {
-                        System.out.println("[INFO] Displaying All Results....");
-                        do
-                        {
-                            System.out.println
-                                    (
-                                            String.format
-                                                    (
-                                                            "| Case ID: %-11s | Case Type: %-20s | Case Status: %-15s | Description: %-50s |",
-                                                            CaseD_rs.getString("CaseID"),
-                                                            CaseD_rs.getString("CaseType"),
-                                                            CaseD_rs.getString("CaseStatus"),
-                                                            CaseD_rs.getString("CrimeDetails")
-                                                    )
-                                    );
-                        } while (CaseD_rs.next());
+                        System.out.println("Do you want to navigate these records interactively??? (yes/no)");
+                        System.out.print(">>> ");
+                        char navAns = sc.next().toLowerCase().charAt(0);
 
+                        if (navAns == 'y')
+                        {
+                            System.out.println("+-------------------------------------------------------------------------------------------------------------------+");
+                            System.out.println("[INFO] Here, don’t ask every time whether to show next or previous travel records....");
+                            System.out.println("[INFO] Handle the Data watching direction automatically based on your choice/input....");
+                            System.out.println("[INFO] [Navigation Method] |>>> [N]ext Record | [P]revious Record | [E]xit Navigation <<<|");
+                            System.out.println("+-------------------------------------------------------------------------------------------------------------------+");
+                            DLL.DLLTravalser(sc);
+                        }
+                        else
+                        {
+                            DLL.DisplayAllData();
+                        }
                         DTR=false;
                     }
                     else if(ans=='N'||ans=='n')
@@ -401,7 +542,7 @@ public class CrimeMngrQueries
                 return;
             }
 
-            if(LSP.LoggedUserID=="")
+            if(Objects.equals(Login_SignUpPage.LoggedUserID, ""))
             {
                 if(LSP.userLogin())
                 {
@@ -410,7 +551,6 @@ public class CrimeMngrQueries
                 else
                 {
                     System.out.println("[INFO] Can't see Detailed Case Details Without User Login....");
-                    return;
                 }
             }
             else
@@ -422,17 +562,61 @@ public class CrimeMngrQueries
 
     public void AllCasesQ() throws Exception
     {
-        String AllCase="Select * from case_details";
-        PreparedStatement QAC=db.getConnection().prepareStatement(AllCase);
+        String AllCase="select *, count(*) over() as TResults from case_details";
+        PreparedStatement QAC= Database.getConnection().prepareStatement(AllCase);
         ResultSet ACrs=QAC.executeQuery();
 
-        while (ACrs.next())
+        CustomDoublyLinkList DLL=new CustomDoublyLinkList();
+        boolean DTR=false;
+        int Tcount=0;
+
+        if (ACrs.next())
         {
-            System.out.println("Case ID: "+ACrs.getString("CaseID"));
-            System.out.println("Case Type: "+ACrs.getString("CaseType"));
-            System.out.println("Crime Location: "+ACrs.getString("CrimeLocation"));
-            System.out.println("Case Name: "+ACrs.getString("CaseName"));
-            System.out.println("---------------------------------------------");
+            if(!DTR)
+            {
+                System.out.println("-----| Total Results Found: " + ACrs.getInt("TResults")+" |-----");
+                Tcount=ACrs.getInt("TResults");
+                DTR=true;
+            }
+
+            do {
+                String recordStr = String.format(
+                        "| Case ID: %-11s | Case Name: %-20s | Case Type: %-20s | Location: %-20s | Suspect: %-15s | Victim: %-15s | Status: %-10s |",
+                        ACrs.getString("CaseID"),
+                        ACrs.getString("CaseName") != null ? ACrs.getString("CaseName") : "N/A",
+                        ACrs.getString("CaseType") != null ? ACrs.getString("CaseType") : "N/A",
+                        ACrs.getString("CrimeLocation") != null ? ACrs.getString("CrimeLocation") : "N/A",
+                        ACrs.getString("SuspectName") != null ? ACrs.getString("SuspectName") : "N/A",
+                        ACrs.getString("VictimName") != null ? ACrs.getString("VictimName") : "N/A",
+                        ACrs.getString("CaseStatus") != null ? ACrs.getString("CaseStatus") : "Pending"
+                );
+                DLL.InsertLast(recordStr);
+            } while (ACrs.next());
+        }
+
+        DataStructure.ActivityLog.push("Viewed list of all cases.");
+
+        if(Tcount==0)
+        {
+            return;
+        }
+
+        System.out.println("Do you want to navigate these records interactively??? (yes/no)");
+        System.out.print(">>> ");
+        char navAns = sc.next().toLowerCase().charAt(0);
+
+        if (navAns == 'y')
+        {
+            System.out.println("+-------------------------------------------------------------------------------------------------------------------+");
+            System.out.println("[INFO] Here, don’t ask every time whether to show next or previous travel records....");
+            System.out.println("[INFO] Handle the Data watching direction automatically based on your choice/input....");
+            System.out.println("[INFO] [Navigation Method] |>>> [N]ext Record | [P]revious Record | [E]xit Navigation <<<|");
+            System.out.println("+-------------------------------------------------------------------------------------------------------------------+");
+            DLL.DLLTravalser(sc);
+        }
+        else if (navAns=='n')
+        {
+            DLL.DisplayAllData();
         }
 
         System.out.println("Do you want Complete Case Details???");
@@ -443,7 +627,7 @@ public class CrimeMngrQueries
         {
             ResultSet fileSet=QAC.executeQuery();
 
-            if(LSP.LoggedUserID=="")
+            if(Login_SignUpPage.LoggedUserID =="")
             {
                 if(LSP.userLogin())
                 {
@@ -456,7 +640,9 @@ public class CrimeMngrQueries
                 else
                 {
                     System.out.println("[INFO] Can't see Detailed Case Details Without User Login....");
-                    return;
+                    ACrs.close();
+                    fileSet.close();
+                    QAC.close();
                 }
             }
             else
@@ -471,12 +657,14 @@ public class CrimeMngrQueries
         else if (ans=='N'||ans=='n')
         {
             System.out.println("[INFO] Returning to Main Menu....");
-            return;
+            ACrs.close();
+            QAC.close();
         }
         else
         {
             System.err.println("[INVALID] Give Answer only by Yes or No...");
-            return;
+            ACrs.close();
+            QAC.close();
         }
     }
 
@@ -500,6 +688,7 @@ public class CrimeMngrQueries
         System.out.println("| 6. Victim Name");
         System.out.println("| 7. Crime Description");
         System.out.println("| 8. Case Status");
+        System.out.println("| 9. Criminal Picture");
         System.out.println("| 0. Cancel.....");
         System.out.print("| Enter Your Choice: ");
         int UpCD_ch= sc.nextInt();
@@ -560,22 +749,53 @@ public class CrimeMngrQueries
                 break;
             }
 
+            case 9:
+            {
+                boolean isPic=false;
+
+                while (!isPic)
+                {
+                    System.out.println("Enter Picture Path in Double Quote: ");
+                    String path = sc.next();
+
+                    if (path == null)
+                    {
+                        System.out.println("[WARNING] Thre is no Picture to Update....");
+                        isPic=false;
+                        return;
+                    }
+
+                    if (!(path.contains(".jpg") || path.contains(".jpeg") || path.contains(".png")))
+                    {
+                        System.err.println("[INVALID] Invalid Picture extention....");
+                        System.out.println("[VALID] Only PNG, JPEG, JPG format pictures are allowed....");
+                        isPic=false;
+                        return;
+                    }
+
+                    IOF.InsertCriminalPic(CId, path);
+                    isPic=true;
+                }
+                break;
+            }
+
             default:
             {
                 System.err.println("[ERROR] Invalid Choice....Try again...");
                 break;
             }
         }
+        DataStructure.ActivityLog.push("Updated case details for Case ID: " + CId);
     }
 
     void UpdateCriID(String c_id) throws Exception
     {
         String CriID=v.readNonEmptyString("Enter Updating Criminal ID: ");
 
-        db.con.setAutoCommit(false);
+        Database.con.setAutoCommit(false);
 
         String UpdateCriID="update case_details set CriminalID=? where CaseID=?";
-        PreparedStatement QUCriID=db.getConnection().prepareStatement(UpdateCriID);
+        PreparedStatement QUCriID= Database.getConnection().prepareStatement(UpdateCriID);
         QUCriID.setString(1,CriID);
         QUCriID.setString(2,c_id);
         int UCID=QUCriID.executeUpdate();
@@ -583,7 +803,7 @@ public class CrimeMngrQueries
         /**Updating Criminal ID of that case Id in Criminal_details....**/
 
         String UpCriIdDetails="update criminal_details set CriminalID=? where CaseID=?";
-        PreparedStatement QUCriIdData=db.getConnection().prepareStatement(UpCriIdDetails);
+        PreparedStatement QUCriIdData= Database.getConnection().prepareStatement(UpCriIdDetails);
         QUCriIdData.setString(1,CriID);
         QUCriIdData.setString(2,c_id);
         int UCIdData=QUCriIdData.executeUpdate();
@@ -591,14 +811,14 @@ public class CrimeMngrQueries
         if (UCID>0 && UCIdData>0)
         {
             System.out.println("[UPDATED] Criminal ID updated successfully...");
-            db.con.commit();
+            Database.con.commit();
             QUCriID.close();
             QUCriIdData.close();
         }
         else
         {
             System.err.println("[ERROR] Failed to update Criminal ID....Try again...");
-            db.con.rollback();
+            Database.con.rollback();
             QUCriID.cancel();
             QUCriIdData.cancel();
         }
@@ -606,12 +826,74 @@ public class CrimeMngrQueries
 
     void UpdateOffID(String c_id) throws Exception
     {
-        String OffID=v.readNonEmptyString("Enter Updating Officer ID: ");
+        // Fetch CaseType to determine recommended department
+        String recDept = "";
+        String prefixO = "";
+        String getCaseType = "select CaseType from case_details where CaseID=?";
+        try (PreparedStatement qct = Database.getConnection().prepareStatement(getCaseType)) {
+            qct.setString(1, c_id);
+            try (ResultSet rsct = qct.executeQuery()) {
+                if (rsct.next()) {
+                    String caseType = rsct.getString("CaseType");
+                    String ctLower = caseType.toLowerCase();
+                    if (ctLower.contains("cyber")) {
+                        recDept = "Cyber Cell";
+                        prefixO = "CYO";
+                    } else if (ctLower.contains("robbery") || ctLower.contains("murder") || ctLower.contains("drug")) {
+                        recDept = "Crime Branch";
+                        prefixO = "CBO";
+                    } else if (ctLower.contains("kidnap")) {
+                        recDept = "Women Cell";
+                        prefixO = "WCO";
+                    } else if (ctLower.contains("traffic")) {
+                        recDept = "Traffic";
+                        prefixO = "TRO";
+                    }
+                }
+            }
+        }
 
-        db.con.setAutoCommit(false);
+        System.out.println("\nRecommended Department for this Crime: " + (recDept.isEmpty() ? "Any" : recDept));
+
+        // Query available officers sorted by recommended department first
+        String AvailOffQuery = "select OfficerID, Name, Department, StationID, OfficerStatus from officer_details " +
+                               "where AssignedCase is null or AssignedCase = '' or lower(CaseStatus) = 'solved' " +
+                               "order by case when Department = ? then 0 else 1 end, Department, Name";
+        try (PreparedStatement QAvail = Database.getConnection().prepareStatement(AvailOffQuery)) {
+            QAvail.setString(1, recDept);
+            try (ResultSet av_rs = QAvail.executeQuery()) {
+                System.out.println("\nAvailable Officers for Assignment (Recommended Department Listed First):");
+                System.out.println("+------------+----------------------+------------------+------------+-----------------+");
+                System.out.printf("| %-10s | %-20s | %-16s | %-10s | %-15s |\n", "Officer ID", "Name", "Department", "Station ID", "Officer Status");
+                System.out.println("+------------+----------------------+------------------+------------+-----------------+");
+
+                boolean hasAvail = false;
+                while (av_rs.next()) {
+                    hasAvail = true;
+                    System.out.printf("| %-10s | %-20s | %-16s | %-10s | %-15s |\n",
+                        av_rs.getString("OfficerID"),
+                        av_rs.getString("Name"),
+                        av_rs.getString("Department"),
+                        av_rs.getString("StationID") != null ? av_rs.getString("StationID") : "N/A",
+                        av_rs.getString("OfficerStatus") != null ? av_rs.getString("OfficerStatus") : "N/A"
+                    );
+                }
+                if (!hasAvail) {
+                    System.out.println("|                      No available officers found.                           |");
+                }
+                System.out.println("+------------+----------------------+------------------+------------+-----------------+\n");
+            }
+        }
+
+        System.out.print("Enter Updating Officer ID: " + prefixO);
+        String officerSuffix = sc.next();
+        sc.nextLine(); // Clear buffer
+        String OffID = prefixO + officerSuffix;
+
+        Database.con.setAutoCommit(false);
 
         String UpdateOffID="update case_details set OfficerID=? , CaseStatus='Investigating' where CaseID=?";
-        PreparedStatement QUOffID=db.getConnection().prepareStatement(UpdateOffID);
+        PreparedStatement QUOffID= Database.getConnection().prepareStatement(UpdateOffID);
         QUOffID.setString(1,OffID);
         QUOffID.setString(2,c_id);
         int UOID=QUOffID.executeUpdate();
@@ -619,15 +901,15 @@ public class CrimeMngrQueries
         /**Updating Criminal's officer Id....**/
 
         String UpOffIdCriD="update criminal_details set InvestingOfficerID=?, CaseStatus='Investigating' where CaseID=?";
-        PreparedStatement QUOffCriD=db.getConnection().prepareStatement(UpOffIdCriD);
+        PreparedStatement QUOffCriD= Database.getConnection().prepareStatement(UpOffIdCriD);
         QUOffCriD.setString(1,OffID);
         QUOffCriD.setString(2,c_id);
         int UOffCri=QUOffCriD.executeUpdate();
 
         /**Updating officers Investing CaseId.....**/
 
-        String UpCaIdOff="update officer_details set AssignedCase=? , CaseStatus='Investigating' where OfficerID=?";
-        PreparedStatement QUCaIOff=db.getConnection().prepareStatement(UpCaIdOff);
+        String UpCaIdOff="update officer_details set AssignedCase=? , CaseStatus='Investigating', OfficerStatus='Active' where OfficerID=?";
+        PreparedStatement QUCaIOff= Database.getConnection().prepareStatement(UpCaIdOff);
         QUCaIOff.setString(1,c_id);
         QUCaIOff.setString(2,OffID);
         int UCIOff=QUCaIOff.executeUpdate();
@@ -635,7 +917,7 @@ public class CrimeMngrQueries
         if (UOID>0 && UOffCri>0 && UCIOff>0)
         {
             System.out.println("[UPDATED] Officer ID updated successfully...");
-            db.con.commit();
+            Database.con.commit();
             QUOffID.close();
             QUOffCriD.close();
             QUCaIOff.close();
@@ -643,7 +925,7 @@ public class CrimeMngrQueries
         else
         {
             System.err.println("[ERROR] Failed to update Officer ID....Try again...");
-            db.con.rollback();
+            Database.con.rollback();
             QUOffID.close();
             QUOffCriD.close();
             QUCaIOff.close();
@@ -654,16 +936,16 @@ public class CrimeMngrQueries
     {
         String CType=v.readAlphaString("Enter Updating Case Type: ");
 
-        db.con.setAutoCommit(false);
+        Database.con.setAutoCommit(false);
 
         String UpdateCType="update case_details set CaseType=? where CaseID=?";
-        PreparedStatement QUCType=db.getConnection().prepareStatement(UpdateCType);
+        PreparedStatement QUCType= Database.getConnection().prepareStatement(UpdateCType);
         QUCType.setString(1,CType);
         QUCType.setString(2,c_id);
         int UCT=QUCType.executeUpdate();
 
         String UpCType="update criminal_details set CrimeType=? where CaseID=?";
-        PreparedStatement QUpCType=db.getConnection().prepareStatement(UpCType);
+        PreparedStatement QUpCType= Database.getConnection().prepareStatement(UpCType);
         QUpCType.setString(1,CType);
         QUpCType.setString(2,c_id);
         int UpCT=QUpCType.executeUpdate();
@@ -671,14 +953,14 @@ public class CrimeMngrQueries
         if (UCT>0 && UpCT>0)
         {
             System.out.println("[UPDATED] Case Type updated successfully...");
-            db.con.commit();
+            Database.con.commit();
             QUCType.close();
             QUpCType.close();
         }
         else
         {
             System.err.println("[ERROR] Failed to update Case Type....Try again...");
-            db.con.rollback();
+            Database.con.rollback();
             QUCType.close();
             QUpCType.close();
         }
@@ -688,10 +970,10 @@ public class CrimeMngrQueries
     {
         String CWeapon=v.readAlphaString("Enter Updating Crime Weapon: ");
 
-        db.con.setAutoCommit(false);
+        Database.con.setAutoCommit(false);
 
         String UpdateCWeapon="update case_details set CrimeWeapon=? where CaseID=?";
-        PreparedStatement QUCWeapon=db.getConnection().prepareStatement(UpdateCWeapon);
+        PreparedStatement QUCWeapon= Database.getConnection().prepareStatement(UpdateCWeapon);
         QUCWeapon.setString(1,CWeapon);
         QUCWeapon.setString(2,c_id);
         int UCW=QUCWeapon.executeUpdate();
@@ -699,13 +981,13 @@ public class CrimeMngrQueries
         if (UCW>0)
         {
             System.out.println("[UPDATED] Crime Weapon updated successfully...");
-            db.con.commit();
+            Database.con.commit();
             QUCWeapon.close();
         }
         else
         {
             System.err.println("[ERROR] Failed to update Crime Weapon....Try again...");
-            db.con.rollback();
+            Database.con.rollback();
             QUCWeapon.close();
         }
     }
@@ -714,22 +996,22 @@ public class CrimeMngrQueries
     {
         String SName=v.readAlphaString("Enter Updating Suspect Name: ");
 
-        db.con.setAutoCommit(false);
+        Database.con.setAutoCommit(false);
 
         String UpdateSuspect="update case_details set SuspectName=? where CaseID=?";
-        PreparedStatement QUSuspect=db.getConnection().prepareStatement(UpdateSuspect);
+        PreparedStatement QUSuspect= Database.getConnection().prepareStatement(UpdateSuspect);
         QUSuspect.setString(1,SName);
         QUSuspect.setString(2,c_id);
         int USN=QUSuspect.executeUpdate();
 
         String UpCriName="update criminal_details set Name=? where CaseID=?";
-        PreparedStatement QUCriN=db.getConnection().prepareStatement(UpCriName);
+        PreparedStatement QUCriN= Database.getConnection().prepareStatement(UpCriName);
         QUCriN.setString(1,SName);
         QUCriN.setString(2,c_id);
         int UCriN=QUCriN.executeUpdate();
 
         String UpCriPicName="update Criminal_Pictures set CriminalName=? where CaseID=?";
-        PreparedStatement QUCriPicN=db.getConnection().prepareStatement(UpCriPicName);
+        PreparedStatement QUCriPicN= Database.getConnection().prepareStatement(UpCriPicName);
         QUCriPicN.setString(1,SName);
         QUCriPicN.setString(2,c_id);
         int UCriPicN=QUCriPicN.executeUpdate();
@@ -737,7 +1019,7 @@ public class CrimeMngrQueries
         if (USN>0 && UCriN>0 && UCriPicN>=0)
         {
             System.out.println("[UPDATED] Suspect Name updated successfully...");
-            db.con.commit();
+            Database.con.commit();
             QUSuspect.close();
             QUCriN.close();
             QUCriPicN.close();
@@ -745,7 +1027,7 @@ public class CrimeMngrQueries
         else
         {
             System.err.println("[ERROR] Failed to update Suspect Name....Try again...");
-            db.con.rollback();
+            Database.con.rollback();
             QUSuspect.close();
             QUCriN.close();
             QUCriPicN.close();
@@ -756,10 +1038,10 @@ public class CrimeMngrQueries
     {
         String VName=v.readAlphaString("Enter Updating Victim Name: ");
 
-        db.con.setAutoCommit(false);
+        Database.con.setAutoCommit(false);
 
         String UpdateVictim="update case_details set VictimName=? where CaseID=?";
-        PreparedStatement QUVictim=db.getConnection().prepareStatement(UpdateVictim);
+        PreparedStatement QUVictim= Database.getConnection().prepareStatement(UpdateVictim);
         QUVictim.setString(1,VName);
         QUVictim.setString(2,c_id);
         int UVN=QUVictim.executeUpdate();
@@ -767,13 +1049,13 @@ public class CrimeMngrQueries
         if (UVN>0)
         {
             System.out.println("[UPDATED] Victim Name updated successfully...");
-            db.con.commit();
+            Database.con.commit();
             QUVictim.close();
         }
         else
         {
             System.err.println("[ERROR] Failed to update Victim Name....Try again...");
-            db.con.rollback();
+            Database.con.rollback();
             QUVictim.cancel();
         }
     }
@@ -782,10 +1064,10 @@ public class CrimeMngrQueries
     {
         String CDesc=v.readAlphaString("Enter Updating Case Description: ");
 
-        db.con.setAutoCommit(false);
+        Database.con.setAutoCommit(false);
 
         String UpdateCDesc="update case_details set CrimeDetails=? where CaseID=?";
-        PreparedStatement QUCDesc=db.getConnection().prepareStatement(UpdateCDesc);
+        PreparedStatement QUCDesc= Database.getConnection().prepareStatement(UpdateCDesc);
         QUCDesc.setString(1,CDesc);
         QUCDesc.setString(2,c_id);
         int UCD=QUCDesc.executeUpdate();
@@ -793,13 +1075,13 @@ public class CrimeMngrQueries
         if (UCD>0)
         {
             System.out.println("[UPDATED] Case Description updated successfully...");
-            db.con.commit();
+            Database.con.commit();
             QUCDesc.close();
         }
         else
         {
             System.err.println("[ERROR] Failed to update Case Description....Try again...");
-            db.con.rollback();
+            Database.con.rollback();
             QUCDesc.cancel();
         }
     }
@@ -808,22 +1090,22 @@ public class CrimeMngrQueries
     {
         String CStatus=v.readAlphaString("Enter Updating Case Status: ");
 
-        db.con.setAutoCommit(false);
+        Database.con.setAutoCommit(false);
 
         String UpdateCStatus="update case_details set CaseStatus=? where CaseID=?";
-        PreparedStatement QUCStatus=db.getConnection().prepareStatement(UpdateCStatus);
+        PreparedStatement QUCStatus= Database.getConnection().prepareStatement(UpdateCStatus);
         QUCStatus.setString(1,CStatus);
         QUCStatus.setString(2,c_id);
         int UCS=QUCStatus.executeUpdate();
 
         String UpCStCri="update criminal_details set CaseStatus=? where CaseID=?";
-        PreparedStatement QUCSCri=db.getConnection().prepareStatement(UpCStCri);
+        PreparedStatement QUCSCri= Database.getConnection().prepareStatement(UpCStCri);
         QUCSCri.setString(1,CStatus);
         QUCSCri.setString(2,c_id);
         int UCSCri=QUCSCri.executeUpdate();
 
         String UpCSOff="update officer_details set CaseStatus=? where AssignedCase=?";
-        PreparedStatement QUCSOff=db.getConnection().prepareStatement(UpCSOff);
+        PreparedStatement QUCSOff= Database.getConnection().prepareStatement(UpCSOff);
         QUCSOff.setString(1,CStatus);
         QUCSOff.setString(2,c_id);
         int UCSOff=QUCSOff.executeUpdate();
@@ -831,7 +1113,7 @@ public class CrimeMngrQueries
         if (UCS>0 && UCSCri>0 && UCSOff>0)
         {
             System.out.println("[UPDATED] Case Status updated successfully...");
-            db.con.commit();
+            Database.con.commit();
             QUCStatus.close();
             QUCSOff.close();
             QUCSCri.close();
@@ -839,7 +1121,7 @@ public class CrimeMngrQueries
         else
         {
             System.err.println("[ERROR] Failed to update Case Status...Try again...");
-            db.con.rollback();
+            Database.con.rollback();
             QUCStatus.close();
             QUCSOff.close();
             QUCSCri.close();
@@ -849,7 +1131,7 @@ public class CrimeMngrQueries
     public void CrimeRatio() throws Exception
     {
         String CrimeRatioQuery="select CaseType, count(*) as TotalCases from case_details group by CaseType";
-        PreparedStatement QCR=db.getConnection().prepareStatement(CrimeRatioQuery);
+        PreparedStatement QCR= Database.getConnection().prepareStatement(CrimeRatioQuery);
         ResultSet CRrs=QCR.executeQuery();
 
         System.out.println("Crime Ratio Report:");
@@ -880,12 +1162,69 @@ public class CrimeMngrQueries
         System.out.println(PCS.peek());
 
         String AssPCase="select CaseID as case_id from case_details where CaseStatus is null or lower(CaseStatus)='pending' limit 1";
-        PreparedStatement QAPCase=db.getConnection().prepareStatement(AssPCase);
+        PreparedStatement QAPCase= Database.getConnection().prepareStatement(AssPCase);
         ResultSet PCase_rs=QAPCase.executeQuery();
         if (PCase_rs.next())
         {
             String case_id=PCase_rs.getString(1);
             QAPCase.close();
+
+            // Fetch CaseType to determine recommended department
+            String recDept = "";
+            String getCaseType = "select CaseType from case_details where CaseID=?";
+            try (PreparedStatement qct = Database.getConnection().prepareStatement(getCaseType)) {
+                qct.setString(1, case_id);
+                try (ResultSet rsct = qct.executeQuery()) {
+                    if (rsct.next()) {
+                        String caseType = rsct.getString("CaseType");
+                        String ctLower = caseType.toLowerCase();
+                        if (ctLower.contains("cyber")) {
+                            recDept = "Cyber Cell";
+                        } else if (ctLower.contains("robbery") || ctLower.contains("murder") || ctLower.contains("drug")) {
+                            recDept = "Crime Branch";
+                        } else if (ctLower.contains("kidnap")) {
+                            recDept = "Women Cell";
+                        } else if (ctLower.contains("traffic")) {
+                            recDept = "Traffic";
+                        }
+                    }
+                }
+            }
+
+            System.out.println("\nRecommended Department for this Crime: " + (recDept.isEmpty() ? "Any" : recDept));
+
+            // Query available officers sorted by recommended department first
+            String AvailOffQuery = "select OfficerID, Name, Department, StationID, OfficerStatus from officer_details " +
+                                   "where AssignedCase is null or AssignedCase = '' or lower(CaseStatus) = 'solved' " +
+                                   "order by case when Department = ? then 0 else 1 end, Department, Name";
+            PreparedStatement QAvail = Database.getConnection().prepareStatement(AvailOffQuery);
+            QAvail.setString(1, recDept);
+            ResultSet av_rs = QAvail.executeQuery();
+
+            System.out.println("\nAvailable Officers for Assignment (Recommended Department Listed First):");
+            System.out.println("+------------+----------------------+------------------+------------+-----------------+");
+            System.out.printf("| %-10s | %-20s | %-16s | %-10s | %-15s |\n", "Officer ID", "Name", "Department", "Station ID", "Officer Status");
+            System.out.println("+------------+----------------------+------------------+------------+-----------------+");
+
+            boolean hasAvail = false;
+            while(av_rs.next())
+            {
+                hasAvail = true;
+                System.out.printf("| %-10s | %-20s | %-16s | %-10s | %-15s |\n",
+                    av_rs.getString("OfficerID"),
+                    av_rs.getString("Name"),
+                    av_rs.getString("Department"),
+                    av_rs.getString("StationID") != null ? av_rs.getString("StationID") : "N/A",
+                    av_rs.getString("OfficerStatus") != null ? av_rs.getString("OfficerStatus") : "N/A"
+                );
+            }
+            if (!hasAvail)
+            {
+                System.out.println("|                      No available officers found.                           |");
+            }
+            System.out.println("+------------+----------------------+------------------+------------+-----------------+\n");
+            av_rs.close();
+            QAvail.close();
 
             System.out.println("Do you want to Assign this Case to any Officer???(yes/no)");
             System.out.print(">>> ");
@@ -895,7 +1234,7 @@ public class CrimeMngrQueries
             {
                 UpdateOffID(case_id);
                 UpdateCType(case_id);
-                PCS.poll();
+                PCS.Dequeue();
             }
             else if (ans=='N'||ans=='n')
             {

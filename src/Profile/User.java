@@ -113,7 +113,8 @@ public class User
 
     void userActivityLog() throws Exception
     {
-        //Show user activity log throgh query....
-        //as text file ma store karishu and fetch karishu....
+        System.out.println("\n+-----------------| USER ACTIVITY LOG |-----------------+");
+        DataStructure.DataStructure.ActivityLog.display();
+        System.out.println("+--------------------------------------------------------+");
     }
 }

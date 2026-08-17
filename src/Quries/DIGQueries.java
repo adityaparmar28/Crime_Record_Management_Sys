@@ -19,6 +19,7 @@ import DataBase.DataFound;
 import DataBase.Database;
 import DataBase.Validation;
 import DataStructure.IOFiles;
+import DataStructure.CustomDoublyLinkList;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -36,7 +37,53 @@ public class DIGQueries
 
     public void AddPoliceRecord() throws Exception
     {
-        String officerID = v.readNonEmptyString("Enter Officer ID: ");
+        String dept = "";
+        String prefixO = "";
+        String prefixS = "";
+
+        while (true)
+        {
+            dept = v.readNonEmptyString("Enter Department: ");
+            String deptLower = dept.trim().toLowerCase();
+
+            if (deptLower.contains("crime") || deptLower.equalsIgnoreCase("crime branch"))
+            {
+                dept = "Crime Branch";
+                prefixO = "CBO";
+                prefixS = "ST-CB";
+                break;
+            }
+            else if (deptLower.contains("cyber") || deptLower.equalsIgnoreCase("cyber cell"))
+            {
+                dept = "Cyber Cell";
+                prefixO = "CYO";
+                prefixS = "ST-CY";
+                break;
+            }
+            else if (deptLower.contains("women") || deptLower.equalsIgnoreCase("women cell"))
+            {
+                dept = "Women Cell";
+                prefixO = "WCO";
+                prefixS = "ST-WC";
+                break;
+            }
+            else if (deptLower.contains("traffic"))
+            {
+                dept = "Traffic";
+                prefixO = "TRO";
+                prefixS = "ST-TR";
+                break;
+            }
+            else
+            {
+                System.err.println("[INVALID] Invalid Department. Valid departments are: Crime Branch, Cyber Cell, Women Cell, Traffic.");
+            }
+        }
+
+        System.out.print("Enter Officer ID: " + prefixO);
+        String officerIDSuffix = sc.next();
+        sc.nextLine(); // Consume rest of line
+        String officerID = prefixO + officerIDSuffix;
 
         String officerName =v.readNonEmptyString("Enter Officer Name: ");
 
@@ -61,9 +108,10 @@ public class DIGQueries
 
         String officerRank = v.readNonEmptyString("Enter Officer Rank: ");
 
-        String dept=v.readNonEmptyString("Enter Department: ");
-
-        String PSID= v.readNonEmptyString("Enter Officer Police Station ID: ");
+        System.out.print("Enter Officer Police Station ID: " + prefixS);
+        String psIDSuffix = sc.next();
+        sc.nextLine(); // Consume rest of line
+        String PSID = prefixS + psIDSuffix;
 
         String Joining=v.Date("Officer Joining Date");
 
@@ -84,10 +132,10 @@ public class DIGQueries
             }
         }
 
-        db.con.setAutoCommit(false);
+        Database.con.setAutoCommit(false);
 
         String AddOfficer="insert into officer_details(OfficerID,Name,DOB,Age,Gender,Rank,Department,StationID,JoiningDate,OfficerStatus) values(?,?,?,?,?,?,?,?,?,?)";
-        PreparedStatement QAddOff=db.getConnection().prepareStatement(AddOfficer);
+        PreparedStatement QAddOff= Database.getConnection().prepareStatement(AddOfficer);
         QAddOff.setString(1,officerID);
         QAddOff.setString(2,officerName);
         QAddOff.setDate(3,java.sql.Date.valueOf(officerDOB));
@@ -109,13 +157,13 @@ public class DIGQueries
         if(AOff>0)
         {
             System.out.println("[UPDATED] Officer added successfully....");
-            db.con.commit();
+            Database.con.commit();
             QAddOff.close();
         }
         else
         {
             System.out.println("[FAILED] Failed to add officer....");
-            db.con.rollback();
+            Database.con.rollback();
             QAddOff.cancel();
         }
 
@@ -156,7 +204,7 @@ public class DIGQueries
         Object Kdetails=OODQ.SQLDType2JDType(ColummName,TableName);
 
         String SearchOffRec="select *, count(*) over() as TResults from officer_details where "+ColummName+" like ?";
-        PreparedStatement QSOR=db.getConnection().prepareStatement(SearchOffRec);
+        PreparedStatement QSOR= Database.getConnection().prepareStatement(SearchOffRec);
         QSOR.setObject(1,"%"+Kdetails+"%");
         ResultSet OffData_rs=QSOR.executeQuery();
 
@@ -177,31 +225,43 @@ public class DIGQueries
                 }
                 else
                 {
+                    CustomDoublyLinkList DLL = new CustomDoublyLinkList();
+                    do
+                    {
+                        String recordStr = String.format(
+                                "| Officer ID: %-11s | Name: %-20s | Gender: %-8s | Rank: %-15s | Department: %-15s |",
+                                OffData_rs.getString("OfficerID"),
+                                OffData_rs.getString("Name"),
+                                OffData_rs.getString("Gender"),
+                                OffData_rs.getString("Rank"),
+                                OffData_rs.getString("Department")
+                        );
+                        DLL.InsertLast(recordStr);
+                    } while (OffData_rs.next());
+
                     System.out.println("Would you like to see AlL Results???");
                     System.out.print(">>> ");
                     ans=sc.next().charAt(0);
 
                     if (ans=='Y'||ans=='y')
                     {
-                        System.out.println("[INFO] Displaying All Results....");
+                        System.out.println("Do you want to navigate these records interactively??? (yes/no)");
+                        System.out.print(">>> ");
+                        char navAns = sc.next().toLowerCase().charAt(0);
 
-                        do
+                        if (navAns == 'y')
                         {
-                            System.out.println
-                                    (
-                                            String.format
-                                                    (
-                                                            "| Officer ID: %-11s | Name: %-20s | Gender: %-8s | Rank: %-15s | Department: %-15s |",
-                                                            OffData_rs.getString("OfficerID"),
-                                                            OffData_rs.getString("Name"),
-                                                            OffData_rs.getString("Gender"),
-                                                            OffData_rs.getString("Rank"),
-                                                            OffData_rs.getString("Department")
-                                                    )
-                                    );
-
-                        }while (OffData_rs.next());
-
+                            System.out.println("+-------------------------------------------------------------------------------------------------------------------+");
+                            System.out.println("[INFO] Here, don’t ask every time whether to show next or previous travel records....");
+                            System.out.println("[INFO] Handle the Data watching direction automatically based on your choice/input....");
+                            System.out.println("[INFO] [Navigation Method] |>>> [N]ext Record | [P]revious Record | [E]xit Navigation <<<|");
+                            System.out.println("+-------------------------------------------------------------------------------------------------------------------+");
+                            DLL.DLLTravalser(sc);
+                        }
+                        else
+                        {
+                            DLL.DisplayAllData();
+                        }
                     }
                     else if(ans=='N'||ans=='n')
                     {
@@ -235,7 +295,7 @@ public class DIGQueries
         }
 
         String PerSerOffRec="select * from officer_details where OfficerID=?";
-        PreparedStatement QPSOR=db.getConnection().prepareStatement(PerSerOffRec);
+        PreparedStatement QPSOR= Database.getConnection().prepareStatement(PerSerOffRec);
         QPSOR.setString(1,offID);
         ResultSet PerOffData_rs=QPSOR.executeQuery();
         PerOffData_rs.next();
@@ -267,7 +327,7 @@ public class DIGQueries
         String details=sc.next();
 
         String UnkSOffRec="select *, count(*) over() as TResults from officer_details where Name like ? or Rank like ? or Gender like ? or Department like ? or OfficerStatus like ?";
-        PreparedStatement QUkSOR=db.getConnection().prepareStatement(UnkSOffRec);
+        PreparedStatement QUkSOR= Database.getConnection().prepareStatement(UnkSOffRec);
         QUkSOR.setString(1,"%"+details+"%");
         QUkSOR.setString(2,"%"+details+"%");
         QUkSOR.setString(3,"%"+details+"%");
@@ -292,32 +352,43 @@ public class DIGQueries
                 }
                 else
                 {
+                    CustomDoublyLinkList DLL = new CustomDoublyLinkList();
+                    do
+                    {
+                        String recordStr = String.format(
+                                "| Officer ID: %-11s | Name: %-20s | Gender: %-8s | Rank: %-15s | Department: %-15s |",
+                                OffData_rs.getString("OfficerID"),
+                                OffData_rs.getString("Name"),
+                                OffData_rs.getString("Gender"),
+                                OffData_rs.getString("Rank"),
+                                OffData_rs.getString("Department")
+                        );
+                        DLL.InsertLast(recordStr);
+                    } while (OffData_rs.next());
+
                     System.out.println("Would you like to see AlL Results???");
                     System.out.print(">>> ");
                     ans=sc.next().charAt(0);
 
                     if (ans=='Y'||ans=='y')
                     {
-                        System.out.println("[INFO] Displaying All Results....");
+                        System.out.println("Do you want to navigate these records interactively??? (yes/no)");
+                        System.out.print(">>> ");
+                        char navAns = sc.next().toLowerCase().charAt(0);
 
-                        do
+                        if (navAns == 'y')
                         {
-                            System.out.println
-                                    (
-                                            String.format
-                                                    (
-                                                            "| Officer ID: %-11s | Name: %-20s | Gender: %-8s | Rank: %-15s | Department: %-15s |",
-                                                            OffData_rs.getString("OfficerID"),
-                                                            OffData_rs.getString("Name"),
-                                                            OffData_rs.getString("Gender"),
-                                                            OffData_rs.getString("Rank"),
-                                                            OffData_rs.getString("Department")
-                                                    )
-                                    );
-
-                        }while (OffData_rs.next());
-
-                        QUkSOR.close();
+                            System.out.println("+-------------------------------------------------------------------------------------------------------------------+");
+                            System.out.println("[INFO] Here, don’t ask every time whether to show next or previous travel records....");
+                            System.out.println("[INFO] Handle the Data watching direction automatically based on your choice/input....");
+                            System.out.println("[INFO] [Navigation Method] |>>> [N]ext Record | [P]revious Record | [E]xit Navigation <<<|");
+                            System.out.println("+-------------------------------------------------------------------------------------------------------------------+");
+                            DLL.DLLTravalser(sc);
+                        }
+                        else
+                        {
+                            DLL.DisplayAllData();
+                        }
                     }
                     else if(ans=='N'||ans=='n')
                     {
@@ -340,27 +411,68 @@ public class DIGQueries
 
     public void AllPoliceOfficers() throws Exception
     {
-        String AllOfficers="select * from officer_details";
-        Statement QAO=db.getConnection().createStatement();
-        ResultSet rs=QAO.executeQuery(AllOfficers);
+        String AllOfficers="select *, count(*) over() as TResults from officer_details";
+        PreparedStatement QAO= Database.getConnection().prepareStatement(AllOfficers);
+        ResultSet rs=QAO.executeQuery();
 
-        System.out.println("+------------+----------------------+---------------+---------+------------+----------------------+------------+--------------+-------------+-------------+");
-        System.out.printf("| %-11s | %-20s | %-13s | %-7s | %-10s | %-10s | %-20s | %-10s | %-12s | %-10s |\n", "Officer ID", "Name", "DOB","Age", "Rank","Station ID", "Joining Date", "Status", "Assigned Case", "Case Status");
-        System.out.println("+------------+----------------------+---------------+---------+------------+----------------------+------------+--------------+-------------+-------------+");
+        CustomDoublyLinkList DLL=new CustomDoublyLinkList();
+        boolean DTR=false;
+        int Tcount=0;
 
-        while(rs.next())
+        if (rs.next())
         {
-            System.out.println(String.format("| %-11s | %-20s | %-13s | %-7s | %-10s | %-10s | %-20s | %-10s | %-12s | %-10s |",
-                    rs.getString("OfficerID"),
-                    rs.getString("Name"),
-                    rs.getDate("DOB"),
-                    rs.getInt("Age"),
-                    rs.getString("Rank"),
-                    rs.getString("StationID"),
-                    rs.getDate("JoiningDate"),
-                    rs.getString("OfficerStatus"),
-                    rs.getString("AssignedCase"),
-                    rs.getString("CaseStatus")));
+            if(!DTR)
+            {
+                System.out.println("-----| Total Results Found: " + rs.getInt("TResults")+" |-----");
+                Tcount=rs.getInt("TResults");
+                DTR=true;
+            }
+
+            do {
+                String recordStr = String.format("| %-11s | %-20s | %-13s | %-7s | %-10s | %-10s | %-20s | %-10s | %-12s | %-10s |",
+                        rs.getString("OfficerID"),
+                        rs.getString("Name"),
+                        rs.getDate("DOB"),
+                        rs.getInt("Age"),
+                        rs.getString("Rank"),
+                        rs.getString("StationID"),
+                        rs.getDate("JoiningDate"),
+                        rs.getString("OfficerStatus"),
+                        rs.getString("AssignedCase"),
+                        rs.getString("CaseStatus"));
+                DLL.InsertLast(recordStr);
+            } while (rs.next());
+        }
+
+        if(Tcount==0)
+        {
+            QAO.close();
+            return;
+        }
+
+        System.out.println("Do you want to navigate these records interactively??? (yes/no)");
+        System.out.print(">>> ");
+        char navAns = sc.next().toLowerCase().charAt(0);
+
+        if (navAns == 'y')
+        {
+            System.out.println("+-------------------------------------------------------------------------------------------------------------------+");
+            System.out.println("[INFO] Here, don’t ask every time whether to show next or previous travel records....");
+            System.out.println("[INFO] Handle the Data watching direction automatically based on your choice/input....");
+            System.out.println("[INFO] [Navigation Method] |>>> [N]ext Record | [P]revious Record | [E]xit Navigation <<<|");
+            System.out.println("+-------------------------------------------------------------------------------------------------------------------+");
+
+            System.out.println("+------------+----------------------+---------------+---------+------------+----------------------+------------+--------------+-------------+-------------+");
+            System.out.printf("| %-11s | %-20s | %-13s | %-7s | %-10s | %-10s | %-20s | %-10s | %-12s | %-10s |\n", "Officer ID", "Name", "DOB","Age", "Rank","Station ID", "Joining Date", "Status", "Assigned Case", "Case Status");
+            System.out.println("+------------+----------------------+---------------+---------+------------+----------------------+------------+--------------+-------------+-------------+");
+            DLL.DLLTravalser(sc);
+        }
+        else if (navAns=='n')
+        {
+            System.out.println("+------------+----------------------+---------------+---------+------------+----------------------+------------+--------------+-------------+-------------+");
+            System.out.printf("| %-11s | %-20s | %-13s | %-7s | %-10s | %-10s | %-20s | %-10s | %-12s | %-10s |\n", "Officer ID", "Name", "DOB","Age", "Rank","Station ID", "Joining Date", "Status", "Assigned Case", "Case Status");
+            System.out.println("+------------+----------------------+---------------+---------+------------+----------------------+------------+--------------+-------------+-------------+");
+            DLL.DisplayAllData();
         }
 
         System.out.println("Would you like to Download Police Officer Data as Text file???");
@@ -369,7 +481,7 @@ public class DIGQueries
 
         if (is_text=='Y' || is_text=='y')
         {
-            ResultSet fileSet=QAO.executeQuery(AllOfficers);
+            ResultSet fileSet=QAO.executeQuery();
             IOF.FetchOfficerData(fileSet);
             System.out.println("[INFO] Police Officer Data Downloaded Successfully as Text file....");
             rs.close();
@@ -381,7 +493,6 @@ public class DIGQueries
             System.out.println("[CANCELLED] Police Officer Data Download Cancelled...");
             rs.close();
             QAO.close();
-            return;
         }
 
     }
@@ -443,7 +554,6 @@ public class DIGQueries
             default:
             {
                 System.err.println("[INVALID] Invalid choice...");
-                return;
             }
         }
     }
@@ -454,7 +564,7 @@ public class DIGQueries
         String URank=sc.next();
 
         String Update_Rank="update officer_details set Rank=? where OfficerID=?";
-        PreparedStatement QRank=db.getConnection().prepareStatement(Update_Rank);
+        PreparedStatement QRank= Database.getConnection().prepareStatement(Update_Rank);
         QRank.setString(1,URank);
         QRank.setString(2,OID);
         int URankRes=QRank.executeUpdate();
@@ -476,10 +586,10 @@ public class DIGQueries
         System.out.print("Enter Updating Station ID: ");
         String UStationID = sc.next();
 
-        db.con.setAutoCommit(false);
+        Database.con.setAutoCommit(false);
 
         String Update_StationID = "update officer_details set StationID=? where OfficerID=?";
-        PreparedStatement QUSID = db.getConnection().prepareStatement(Update_StationID);
+        PreparedStatement QUSID = Database.getConnection().prepareStatement(Update_StationID);
         QUSID.setString(1, UStationID);
         QUSID.setString(2, OID);
         int USIDRes = QUSID.executeUpdate();
@@ -487,13 +597,13 @@ public class DIGQueries
         if (USIDRes > 0)
         {
             System.out.println("[UPDATED] Officer Station ID Updated Successfully....");
-            db.con.commit();
+            Database.con.commit();
             QUSID.close();
         }
         else
         {
             System.err.println("[FAILED] Failed to Update Officer Station ID....");
-            db.con.rollback();
+            Database.con.rollback();
             QUSID.close();
         }
     }
@@ -518,10 +628,10 @@ public class DIGQueries
             }
         }
 
-        db.con.setAutoCommit(false);
+        Database.con.setAutoCommit(false);
 
         String Update_OfficerStatus = "update officer_details set OfficerStatus=? where OfficerID=?";
-        PreparedStatement QUOffS = db.getConnection().prepareStatement(Update_OfficerStatus);
+        PreparedStatement QUOffS = Database.getConnection().prepareStatement(Update_OfficerStatus);
         QUOffS.setString(1, UOfficerStatus);
         QUOffS.setString(2, OID);
         int UOffSRes = QUOffS.executeUpdate();
@@ -529,13 +639,13 @@ public class DIGQueries
         if (UOffSRes > 0)
         {
             System.out.println("[UPDATED] Officer Status Updated Successfully....");
-            db.con.commit();
+            Database.con.commit();
             QUOffS.close();
         }
         else
         {
             System.err.println("[FAILED] Failed to Update Officer Status....");
-            db.con.rollback();
+            Database.con.rollback();
             QUOffS.cancel();
         }
     }
@@ -560,22 +670,22 @@ public class DIGQueries
             }
         }
 
-        db.con.setAutoCommit(false);
+        Database.con.setAutoCommit(false);
 
         String Update_CaseStatus = "update officer_details set CaseStatus=? where OfficerID=?";
-        PreparedStatement QUCS = db.getConnection().prepareStatement(Update_CaseStatus);
+        PreparedStatement QUCS = Database.getConnection().prepareStatement(Update_CaseStatus);
         QUCS.setString(1, UCaseStatus);
         QUCS.setString(2, OID);
         int UCStatusRes = QUCS.executeUpdate();
 
         String UCaseD_CaseStatus="update case_details set CaseStatus=? where OfficerID=?";
-        PreparedStatement QUCaD_CaS=db.getConnection().prepareStatement(UCaseD_CaseStatus);
+        PreparedStatement QUCaD_CaS= Database.getConnection().prepareStatement(UCaseD_CaseStatus);
         QUCaD_CaS.setString(1,UCaseStatus);
         QUCaD_CaS.setString(2,OID);
         int UCD_CSRes=QUCaD_CaS.executeUpdate();
 
         String UCriD_CaSta="update criminal_details set CaseStatus=? where InvestingOfficerID=?";
-        PreparedStatement QUCriD_CaS=db.getConnection().prepareStatement(UCriD_CaSta);
+        PreparedStatement QUCriD_CaS= Database.getConnection().prepareStatement(UCriD_CaSta);
         QUCriD_CaS.setString(1,UCaseStatus);
         QUCriD_CaS.setString(2,OID);
         int UCriD_CSRes=QUCriD_CaS.executeUpdate();
@@ -583,7 +693,7 @@ public class DIGQueries
         if (UCStatusRes > 0 && UCD_CSRes>0 && UCriD_CSRes>0)
         {
             System.out.println("[UPDATED] Case Status Updated Successfully....");
-            db.con.commit();
+            Database.con.commit();
             QUCS.close();
             QUCaD_CaS.close();
             QUCriD_CaS.close();
@@ -591,7 +701,7 @@ public class DIGQueries
         else
         {
             System.err.println("[FAILED] Failed to Update Case Status....");
-            db.con.rollback();
+            Database.con.rollback();
             QUCS.cancel();
             QUCriD_CaS.cancel();
             QUCaD_CaS.cancel();
@@ -602,22 +712,22 @@ public class DIGQueries
     {
         String UAssignedCase =v.readNonEmptyString("Enter Updating Assigned Case ID: ");
 
-        db.con.setAutoCommit(false);
+        Database.con.setAutoCommit(false);
 
         String Update_AssignedCase = "update officer_details set AssignedCase=? where OfficerID=?";
-        PreparedStatement QUAC = db.getConnection().prepareStatement(Update_AssignedCase);
+        PreparedStatement QUAC = Database.getConnection().prepareStatement(Update_AssignedCase);
         QUAC.setString(1, UAssignedCase);
         QUAC.setString(2, OID);
         int UACRes = QUAC.executeUpdate();
 
         String UOffId_CaD="update case_details set OfficerID=? where CaseID=?";
-        PreparedStatement QOidCaD=db.getConnection().prepareStatement(UOffId_CaD);
+        PreparedStatement QOidCaD= Database.getConnection().prepareStatement(UOffId_CaD);
         QOidCaD.setString(1,OID);
         QOidCaD.setString(2,UAssignedCase);
         int UOIDRes=QOidCaD.executeUpdate();
 
         String UOffId_CriD="update criminal_details set InvestingOfficerID=? where CaseID=?";
-        PreparedStatement QOidCriD=db.getConnection().prepareStatement(UOffId_CriD);
+        PreparedStatement QOidCriD= Database.getConnection().prepareStatement(UOffId_CriD);
         QOidCriD.setString(1,OID);
         QOidCriD.setString(2,UAssignedCase);
         int UOIDRes2=QOidCriD.executeUpdate();
@@ -625,7 +735,7 @@ public class DIGQueries
         if (UACRes > 0 && UOIDRes>0 && UOIDRes2>0)
         {
             System.out.println("[UPDATED] Assigned Case Updated Successfully....");
-            db.con.commit();
+            Database.con.commit();
             QUAC.close();
             QOidCaD.close();
             QOidCriD.close();
@@ -633,7 +743,7 @@ public class DIGQueries
         else
         {
             System.err.println("[FAILED] Failed to Update Assigned Case....");
-            db.con.rollback();
+            Database.con.rollback();
             QUAC.cancel();
             QOidCaD.cancel();
             QOidCriD.cancel();

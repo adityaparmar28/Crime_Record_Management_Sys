@@ -153,4 +153,21 @@ public class CreateTable
             QCTU.executeUpdate();
         }
     }
+
+    public void CTactivity_log() throws Exception
+    {
+        String CTAct = "CREATE TABLE IF NOT EXISTS ActivityLog (" +
+                "    LogID INT PRIMARY KEY AUTO_INCREMENT," +
+                "    Time DATETIME NOT NULL," +
+                "    UserID VARCHAR(10) NOT NULL," +
+                "    Role VARCHAR(10) NOT NULL," +
+                "    Activity TEXT NOT NULL," +
+                "    ActivityEndTime DATETIME NOT NULL," +
+                "    ActivityDuration VARCHAR(50) NOT NULL)";
+
+        try (PreparedStatement QCTAct = Database.getConnection().prepareStatement(CTAct))
+        {
+            QCTAct.executeUpdate();
+        }
+    }
 }

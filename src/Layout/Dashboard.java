@@ -113,7 +113,9 @@ public class Dashboard
 
                     case 6:
                     {
+                        DataStructure.DataStructure.ActivityLog.push("Logged out user: " + Login_SignUpPage.LoggedUserID);
                         Login_SignUpPage.LoggedUserID="";
+                        Login_SignUpPage.LoggedUserRole="";
                         System.out.println("Logged out successfully....");
                         inDashboard = false;
                         break;

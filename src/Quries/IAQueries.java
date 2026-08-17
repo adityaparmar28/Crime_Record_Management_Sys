@@ -22,8 +22,9 @@ import DataStructure.DataStructure;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.Queue;
 import java.util.Scanner;
+import DataStructure.CustomPriorityQueue;
+import DataStructure.CustomDoublyLinkList;
 
 public class IAQueries
 {
@@ -31,7 +32,7 @@ public class IAQueries
     Database db=new Database();
     OODataQueries OODQ=new OODataQueries();
     CrimeMngrQueries CMQ=new CrimeMngrQueries();
-    Queue<String> PCS=DataStructure.PendingCase;
+    CustomPriorityQueue PCS=DataStructure.PendingCase;
     Validation v=new Validation();
     DataFound found=new DataFound();
 
@@ -39,7 +40,7 @@ public class IAQueries
     {
         PCS.clear();
         String PenCases="select * from case_details where CaseStatus is null or lower(CaseStatus)=?";
-        PreparedStatement QPCase=db.getConnection().prepareStatement(PenCases);
+        PreparedStatement QPCase= Database.getConnection().prepareStatement(PenCases);
         QPCase.setString(1,"pending");
         ResultSet PCase_rs=QPCase.executeQuery();
 
@@ -47,6 +48,7 @@ public class IAQueries
         System.out.println("|                                                  PENDING CASES LIST                                                |");
         System.out.println("+-------------------------------------------------------------------------------------------------------------------+");
 
+        CustomDoublyLinkList DLL = new CustomDoublyLinkList();
         boolean flag = false;
         while(PCase_rs.next())
         {
@@ -71,21 +73,53 @@ public class IAQueries
                             (status != null ? status : "Pending")
                     );
 
-            PCS.add(caseDetails);
+            PCS.Enqueue(caseDetails);
 
-            System.out.println(" | Case ID      : " + caseId);
-            System.out.println(" | Case Name    : " + (caseName != null ? caseName : "N/A"));
-            System.out.println(" | Case Type    : " + (caseType != null ? caseType : "N/A"));
-            System.out.println(" | Location     : " + (location != null ? location : "N/A"));
-            System.out.println(" | Weapon       : " + (weapon != null ? weapon : "N/A"));
-            System.out.println(" | Suspect Name : " + (suspect != null ? suspect : "N/A"));
-            System.out.println(" | Victim Name  : " + (victim != null ? victim : "N/A"));
-            System.out.println(" | Description  : " + (desc != null ? desc : "N/A"));
-            System.out.println(" | Status       : " + (status != null ? status : "Pending"));
-            System.out.println("-------------------------------------------------------------------------------------------------------------------");
+            String recordStr = String.format(
+                " | Case ID      : %s\n" +
+                " | Case Name    : %s\n" +
+                " | Case Type    : %s\n" +
+                " | Location     : %s\n" +
+                " | Weapon       : %s\n" +
+                " | Suspect Name : %s\n" +
+                " | Victim Name  : %s\n" +
+                " | Description  : %s\n" +
+                " | Status       : %s\n" +
+                "-------------------------------------------------------------------------------------------------------------------",
+                caseId, (caseName != null ? caseName : "N/A"),
+                (caseType != null ? caseType : "N/A"),
+                (location != null ? location : "N/A"),
+                (weapon != null ? weapon : "N/A"),
+                (suspect != null ? suspect : "N/A"),
+                (victim != null ? victim : "N/A"),
+                (desc != null ? desc : "N/A"),
+                (status != null ? status : "Pending")
+            );
+
+            DLL.InsertLast(recordStr);
         }
 
-        if (!flag)
+        if (flag)
+        {
+            System.out.println("Do you want to navigate these records interactively??? (yes/no)");
+            System.out.print(">>> ");
+            char navAns = sc.next().toLowerCase().charAt(0);
+
+            if (navAns == 'y')
+            {
+                System.out.println("+-------------------------------------------------------------------------------------------------------------------+");
+                System.out.println("[INFO] Here, don’t ask every time whether to show next or previous travel records....");
+                System.out.println("[INFO] Handle the Data watching direction automatically based on your choice/input....");
+                System.out.println("[INFO] [Navigation Method] |>>> [N]ext Record | [P]revious Record | [E]xit Navigation <<<|");
+                System.out.println("+-------------------------------------------------------------------------------------------------------------------+");
+                DLL.DLLTravalser(sc);
+            }
+            else
+            {
+                DLL.DisplayAllData();
+            }
+        }
+        else
         {
             System.out.println("[INFO] No pending cases found.");
         }
@@ -95,6 +129,7 @@ public class IAQueries
         PCase_rs.close();
         QPCase.close();
 
+        DataStructure.ActivityLog.push("Viewed Pending Cases List.");
         CMQ.AssignPCase();
     }
 
@@ -119,10 +154,10 @@ public class IAQueries
 
         Object UpdatingValue=OODQ.SQLDType2JDType(UpColummName,TableName);
 
-        db.con.setAutoCommit(false);
+        Database.con.setAutoCommit(false);
 
         String UpdateIn="update "+TableName+" set "+UpColummName+"=? where CaseID=?";
-        PreparedStatement QUIn=db.getConnection().prepareStatement(UpdateIn);
+        PreparedStatement QUIn= Database.getConnection().prepareStatement(UpdateIn);
         QUIn.setObject(1, UpdatingValue);
         QUIn.setString(2,caseID);
         int run = QUIn.executeUpdate();
@@ -141,13 +176,13 @@ public class IAQueries
                 String valStr = String.valueOf(UpdatingValue);
 
                 String UpdateCri = "update criminal_details set CaseStatus=? where CaseID=?";
-                QUInCri = db.getConnection().prepareStatement(UpdateCri);
+                QUInCri = Database.getConnection().prepareStatement(UpdateCri);
                 QUInCri.setString(1, valStr);
                 QUInCri.setString(2, caseID);
                 runCri = QUInCri.executeUpdate();
 
                 String UpdateOff = "update officer_details set CaseStatus=? where AssignedCase=?";
-                QUInOff = db.getConnection().prepareStatement(UpdateOff);
+                QUInOff = Database.getConnection().prepareStatement(UpdateOff);
                 QUInOff.setString(1, valStr);
                 QUInOff.setString(2, caseID);
                 runOff = QUInOff.executeUpdate();
@@ -157,13 +192,13 @@ public class IAQueries
                 String valStr = String.valueOf(UpdatingValue);
 
                 String UpdateCri = "update criminal_details set Name=? where CaseID=?";
-                QUInCri = db.getConnection().prepareStatement(UpdateCri);
+                QUInCri = Database.getConnection().prepareStatement(UpdateCri);
                 QUInCri.setString(1, valStr);
                 QUInCri.setString(2, caseID);
                 runCri = QUInCri.executeUpdate();
 
                 String UpdatePic = "update Criminal_Pictures set CriminalName=? where CaseID=?";
-                QUInPic = db.getConnection().prepareStatement(UpdatePic);
+                QUInPic = Database.getConnection().prepareStatement(UpdatePic);
                 QUInPic.setString(1, valStr);
                 QUInPic.setString(2, caseID);
                 runPic = QUInPic.executeUpdate();
@@ -173,12 +208,13 @@ public class IAQueries
         if (run > 0 && runCri >= 0 && runOff >= 0 && runPic >= 0)
         {
             System.out.println("[UPDATED] Investigation details updated successfully...");
-            db.con.commit();
+            Database.con.commit();
+            DataStructure.ActivityLog.push("Updated investigation status for Case ID: " + caseID);
         }
         else
         {
             System.err.println("[FAILED] Investigation details update failed...");
-            db.con.rollback();
+            Database.con.rollback();
         }
 
         if (QUIn != null) QUIn.close();

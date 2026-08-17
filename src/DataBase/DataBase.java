@@ -101,7 +101,7 @@ public class Database extends Thread
         if(testConnection())
         {
             System.out.println("Status: ONLINE MODE (Connected to MySQL Database)");
-            System.out.println("Connection String: jdbc:mysql://localhost:3306/c103");
+            System.out.println("Connection String: jdbc:mysql://localhost:3306/crms");
             System.out.println();
         }
         else
@@ -116,7 +116,7 @@ public class Database extends Thread
 
             if (conAns=='y' || conAns=='Y')
             {
-                System.out.println("Attempting to connect to jdbc:mysql://localhost:3306/c103...");
+                System.out.println("Attempting to connect to jdbc:mysql://localhost:3306/crms...");
                 if (testConnection())
                 {
                     System.out.println("Database connection established! System synchronized to live database.");
@@ -228,6 +228,7 @@ public class Database extends Thread
             stmt.execute("DROP TABLE IF EXISTS users");
             stmt.execute("DROP TABLE IF EXISTS criminal_pictures");
             stmt.execute("DROP TABLE IF EXISTS Criminal_Pictures");
+            stmt.execute("DROP TABLE IF EXISTS ActivityLog");
             stmt.execute("SET FOREIGN_KEY_CHECKS = 1");
             stmt.close();
         }
@@ -302,6 +303,45 @@ public class Database extends Thread
         if (isTableEmpty("users"))
         {
             ITD.ITUsers();
+        }
+
+        if (!tableExists("ActivityLog"))
+        {
+            CT.CTactivity_log();
+        }
+        else
+        {
+            try
+            {
+                String findConstraint = "SELECT CONSTRAINT_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE " +
+                        "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'ActivityLog' AND REFERENCED_TABLE_NAME = 'users'";
+                String constraintName = null;
+                try (PreparedStatement ps = getConnection().prepareStatement(findConstraint);
+                     ResultSet rs = ps.executeQuery())
+                {
+                    if (rs.next())
+                    {
+                        constraintName = rs.getString(1);
+                    }
+                }
+
+                if (constraintName != null)
+                {
+                    try (Statement stmt = getConnection().createStatement())
+                    {
+                        stmt.execute("ALTER TABLE ActivityLog DROP FOREIGN KEY " + constraintName);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                // Ignore if constraint does not exist or cannot be dropped
+            }
+        }
+
+        if (isTableEmpty("ActivityLog"))
+        {
+            ITD.ITActivityLog();
         }
     }
 

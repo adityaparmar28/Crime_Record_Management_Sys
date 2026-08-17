@@ -19,7 +19,7 @@ import DataBase.Database;
 import Profile.Login_SignUpPage;
 
 import java.io.BufferedWriter;
-import java.io.File;
+import java.io.*;
 import java.io.FileWriter;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -217,5 +217,86 @@ public class IOFiles
         fw.close();
         FetchRs.close();
         UserRs.close();
+    }
+
+    public void InsertCriminalPic(String CriID,String Path) throws Exception
+    {
+        // Strip double quotes if entered by user
+        Path = Path.replace("\"", "").trim();
+
+        File f = new File(Path);
+        if (!f.exists() || !f.isFile())
+        {
+            System.err.println("[ERROR] File does not exist at path: " + Path);
+            return;
+        }
+
+        String InCriPic="update criminal_pictures set Picture=? where CriminalID=?";
+
+        try (PreparedStatement QICriP = Database.getConnection().prepareStatement(InCriPic);
+             FileInputStream fis = new FileInputStream(f))
+        {
+            QICriP.setBlob(1, fis);
+            QICriP.setString(2, CriID);
+
+            int updatePic = QICriP.executeUpdate();
+
+            if (updatePic > 0)
+            {
+                System.out.println("[UPDATED] Criminal Picture inserted Successfully....");
+            }
+            else
+            {
+                System.err.println("[ERROR] Criminal Picture Updation Failed....");
+            }
+        }
+    }
+
+    public void FetchCriPic(String CriID) throws Exception
+    {
+        String FetchPic="select * from criminal_pictures where CriminalID=? or CaseID=?";
+        try (PreparedStatement QFCriPic = Database.getConnection().prepareStatement(FetchPic))
+        {
+            QFCriPic.setString(1, CriID);
+            QFCriPic.setString(2, CriID);
+            try (ResultSet Picture = QFCriPic.executeQuery())
+            {
+                if (!Picture.next())
+                {
+                    System.err.println("[ERROR] " + CriID + " Criminal Picture not Found....");
+                }
+                else
+                {
+                    do
+                    {
+                        String criminalName = Picture.getString("CriminalName");
+                        String criminalID = Picture.getString("CriminalID");
+                        InputStream bit = Picture.getBinaryStream("Picture");
+
+                        if (bit == null)
+                        {
+                            System.out.println("[INFO] No picture uploaded for criminal " + criminalName + " Criminal ID: " + criminalID);
+                            continue;
+                        }
+
+                        // Save file as <CriminalID>_<CriminalName>.jpg to differentiate multiple criminals in a case
+                        File f = new File(criminalID + "_" + criminalName + ".jpg");
+                        try (FileOutputStream fos = new FileOutputStream(f))
+                        {
+                            byte[] buffer = new byte[4096];
+                            int bytesRead;
+                            while ((bytesRead = bit.read(buffer)) != -1)
+                            {
+                                fos.write(buffer, 0, bytesRead);
+                            }
+                            fos.flush();
+                        }
+                        bit.close();
+                        System.out.println("[SUCCESS] Picture successfully fetched and saved as: " + f.getName());
+
+                    } while (Picture.next());
+                }
+            }
+        }
     }
 }

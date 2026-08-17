@@ -47,6 +47,7 @@ public class Login_SignUpPage
     public static String Role="Citizen";
     public static String LoggedUserID="";
     public static String LoggedUserRole="";
+    public static long lastActionTime = System.currentTimeMillis();
     //public static int atp = 2;
 
     public void SignUp() throws Exception

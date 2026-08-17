@@ -43,7 +43,8 @@ public class CRMngr
                 System.out.println("| 2. Search Criminal");
                 System.out.println("| 3. List of All Criminals");
                 System.out.println("| 4. Update Criminal Record");
-                System.out.println("| 5. Home Page");
+                System.out.println("| 5. Show Criminal Accomplice Graph");
+                System.out.println("| 6. Home Page");
                 System.out.println("+----------------------------------------------------------------------+");
                 System.out.print("| Enter Your Choice: ");
                 crm_ch = sc.nextInt();
@@ -123,6 +124,13 @@ public class CRMngr
 
                 case 5:
                 {
+                    // Show Accomplice Graph
+                    showAccompliceGraph();
+                    break;
+                }
+
+                case 6:
+                {
                     // Home Page
                     sc.nextLine();
                     isCRML=true;
@@ -163,5 +171,10 @@ public class CRMngr
     {
         //first login as adg then process of update criminal record
         CRQ.UpdateCriminalRQuery();
+    }
+
+    void showAccompliceGraph() throws Exception
+    {
+        CRQ.ShowCriminalAccompliceGraph();
     }
 }
