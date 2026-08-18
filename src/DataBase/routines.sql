@@ -1,0 +1,37 @@
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` FUNCTION `ColummDataType`(CName VARCHAR(100),
+    TName VARCHAR(100)
+) RETURNS varchar(50) CHARSET utf8mb4 COLLATE utf8mb4_general_ci
+    DETERMINISTIC
+BEGIN
+    DECLARE DType VARCHAR(50);
+
+    SELECT DATA_TYPE
+    INTO DType
+    FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = TName
+      AND COLUMN_NAME = CName;
+
+    RETURN DType;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` FUNCTION `is_OfficerID`(OID VARCHAR(11)) RETURNS tinyint(1)
+    DETERMINISTIC
+BEGIN
+    DECLARE c INT;
+
+    SELECT COUNT(*)
+    INTO c
+    FROM officer_details
+    WHERE OfficerID = OID;
+
+    IF c > 0 THEN
+        RETURN TRUE;
+    ELSE
+        RETURN FALSE;
+    END IF;
+END$$
+DELIMITER ;

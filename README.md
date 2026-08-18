@@ -12,7 +12,7 @@
   POLICE RECORD & COMPLAINT PORTAL
 ```
 
-> 🚨 **A robust, high-performance Crime Record Management System (CRMS) built in Java. Engineered with role-based security, JDBC connection resilience (online/offline fail-safe mode), and real-time analytics. Powered by custom low-level Data Structures (Priority Queues, DLLs, Graphs, BSTs) & background daemon threads for extreme execution speed! 💻⚡**
+> 🚨 **A robust, high-performance Crime Record Management System (CRMS) built in Java. Engineered with role-based security, JDBC connection resilience (online/offline fail-safe mode), and real-time analytics. Powered by custom low-level Data Structures (Priority Queues, DLLs, BSTs) & background daemon threads for extreme execution speed! 💻⚡**
 
 Welcome to the **Crime Record Management System (CRMS)**—a highly structured, modular Java CLI application designed to bridge the gap between citizens and law enforcement. CRMS empowers citizens to file complaints while giving officers a centralized, secure terminal to track investigations, manage criminal dossiers, roster personnel, and generate official documents.
 
@@ -51,8 +51,10 @@ Welcome to the **Crime Record Management System (CRMS)**—a highly structured, 
 ### 🔒 Two-Step Security & Role-Based Access Control (RBAC)
 * **Citizen Portal**: Open registration for the public to file First Information Reports (FIR) and look up case progress.
 * **Officer & DGP Dashboard**: Strict role-based verification up to the Director General of Police (DGP) level to access police rosters, add criminal records, assign cases, or modify system databases.
+* **Two-Step Authentication**:
+  * **Citizen Login**: Prompts and verifies a dynamic 30-second expiring CAPTCHA challenge before granting access.
+  * **Officer/DGP Login**: Authenticates credentials, restricts access to accounts with `Admin` or `Officer` roles, and verifies a simulated One-Time Password (OTP) challenge.
 * **Time-Bound CAPTCHA Challenge**: Protects administrative endpoints with a dynamic, multi-threaded alphanumeric CAPTCHA that automatically expires after 30 seconds.
-* **OTP Simulation**: Multi-factor authentication simulation using one-time passwords (OTP) to verify login credentials.
 
 ### 📝 Smart FIR Report Generator
 When an FIR is filed, the system extracts the victim, suspect, crime details, and the logged-in officer’s metadata, generating a structured, ready-to-print official document:
@@ -63,28 +65,41 @@ An automated analytics suite that tracks total cases vs. solved vs. pending, and
 
 ---
 
-## 🧠 Computer Science & Custom DSA Implementation
+## 💻 Java Concepts Utilized in CRMS
 
-To optimize performance and minimize database query overhead, CRMS integrates custom low-level **Data Structures & Algorithms (DSA)** alongside **Multi-threaded Background Daemons**:
+This codebase demonstrates key core and advanced Java software engineering principles:
 
-### 1. Custom DSA Core
+1. **Object-Oriented Programming (OOP)**:
+   * **Inheritance**: Used for extending class functionalities (e.g., `DGP extends DGPQueries` for database-backed controller logic, and custom exceptions like `AuthorizationException extends Exception`).
+   * **Encapsulation**: Session tracking variables (`LoggedUserID`, `LoggedUserRole`) are kept private and accessed only through strict getters and setters.
+2. **Multi-threading & Asynchronous Tasks**:
+   * **Daemon Heartbeat Thread**: The DB connection sync process runs as a daemon thread in the background (`DB.setDaemon(true)`), checking database availability every 10 seconds.
+   * **Non-Blocking Timer Threads**: Alphanumeric CAPTCHAs and OTP codes spawn isolated background threads (`InputReader`) to implement a 30-second expiry timeout without blocking the console indefinitely.
+3. **JDBC API & Transaction Security**:
+   * Used for relational database connectivity with MySQL using `PreparedStatement` (preventing SQL injection), transaction safety, and dynamic creation of circular foreign keys.
+4. **Custom Exception Handling**:
+   * Designed custom checked exceptions (such as `DBConnectionException` and `AuthorizationException`) to manage connection fallbacks and role authorization violations cleanly.
+5. **File I/O Streams**:
+   * Implemented persistent local logging and report generation using file writers to export physical case files and system configurations when operating in offline fallback mode.
+
+---
+
+## 🧠 Custom DSA Implementation
+
+To optimize performance and minimize database query overhead, CRMS integrates custom low-level **Data Structures & Algorithms (DSA)** alongside database storage:
+
 * **Custom Doubly Linked List (DLL)** (`CustomDoublyLinkList.java`): Used for navigating through criminal histories sequentially (Next/Previous offense) with \(O(1)\) node insertion and deletion.
 * **Custom Priority Queue** (`CustomPriorityQueue.java`): Prioritizes pending cases by crime severity, automatically routing critical investigations to the top of the roster.
 * **Custom Binary Search Tree (BST)** (`CustomBinarySearchTree.java`): Speeds up case searches by indexing case details by their primary keys, allowing \(O(\log n)\) lookup time.
-* **Custom Graph** (`CustomGraph.java`): Models relationships and connections between different suspects, criminals, and crime events.
 * **Custom Stack** (`CustomStack.java`): Implements a history stack so officers can navigate the multi-tier menu system or undo/redo edits to case logs.
 * **Custom Queue** (`CustomQueue.java`): Implements a FIFO (First-In, First-Out) pipeline to process citizen complaint registrations in the order they are received.
-
-### 2. Multi-threaded Background Workers
-* **JDBC Sync Daemon** (`Database.java`): Runs as a background daemon thread, polling database connection status every minute to switch modes dynamically without interrupting active CLI menus.
-* **Timed CAPTCHA Thread** (`APIs/Captcha.java`): Controls timed input reading to auto-expire alphanumeric security challenges after 30 seconds.
 
 ---
 
 ## 📂 Project Directory Structure
 
 ```text
-v103/
+CRMSv103/
 ├── .idea/                 # IntelliJ IDEA configuration files
 ├── src/                   # Source directory for the Java application
 │   ├── APIs/              # Security and Helper APIs (Captcha, OTP, TimeStamp, custom exceptions)
@@ -98,12 +113,12 @@ v103/
 │   │   ├── Database.java
 │   │   ├── DataFound.java
 │   │   ├── InsertData.java
+│   │   ├── routines.sql       # Database SQL routines (functions and stored procedures)
 │   │   ├── table_relation_schema.png # Database relationship schema diagram
 │   │   └── Validation.java
 │   ├── DataStructure/     # Custom Data Structures & algorithms for in-memory processing
 │   │   ├── CustomBinarySearchTree.java
 │   │   ├── CustomDoublyLinkList.java
-│   │   ├── CustomGraph.java
 │   │   ├── CustomPriorityQueue.java
 │   │   ├── CustomQueue.java
 │   │   ├── CustomStack.java
@@ -132,18 +147,110 @@ v103/
 ├── LICENSE                # Apache 2.0 License Agreement
 ├── NOTICE                 # Attribution and copyright notice
 ├── README.md              # Documentation
-└── v103.iml               # IntelliJ module file
+└── CRMSv103.iml           # IntelliJ module file
 ```
 
 ---
 
-## 🗄️ Database Schema & Relational Model
+## 🗄️ Relational Database Schema (Mermaid ER Diagram)
 
-Below is the database relationship schema mapping the tables and connections:
+Below is the code-based entity-relationship (ER) diagram mapping all database tables, columns, and relationships:
 
-![Table Relational Schema](src/DataBase/table_relation_schema.png)
+```mermaid
+erDiagram
+    users {
+        VARCHAR(60) UsersName
+        VARCHAR(40) EmailID "Unique"
+        VARCHAR(10) MobileNo
+        DATE DOB
+        VARCHAR(10) UserID PK
+        VARCHAR(12) Password
+        VARCHAR(10) Role
+    }
 
-### 📊 Tables Overview
+    officer_details {
+        VARCHAR(11) OfficerID PK
+        VARCHAR(40) Name
+        DATE DOB
+        INT Age
+        VARCHAR(10) Gender
+        VARCHAR(30) Rank
+        VARCHAR(30) Department
+        VARCHAR(30) StationID
+        DATE JoiningDate
+        VARCHAR(30) OfficerStatus
+        VARCHAR(11) AssignedCase
+        VARCHAR(15) CaseStatus
+    }
+
+    criminal_details {
+        VARCHAR(11) CriminalID PK
+        VARCHAR(40) Name
+        INT Age
+        VARCHAR(12) Gender
+        VARCHAR(11) CaseID
+        VARCHAR(50) CrimeType
+        DATE CrimeDate
+        VARCHAR(11) InvestingOfficerID FK
+        VARCHAR(50) CaseStatus
+        VARCHAR(30) PunishmentType
+        VARCHAR(30) CriminalStatus
+        DATE BailDate
+        DATE ReleaseDate
+        INT PictureID FK
+    }
+
+    case_details {
+        VARCHAR(11) CaseID PK
+        VARCHAR(11) CriminalID FK
+        VARCHAR(45) CaseName
+        VARCHAR(11) OfficerID FK
+        VARCHAR(60) CaseType
+        VARCHAR(45) CrimeLocation
+        VARCHAR(45) CrimeWeapon
+        VARCHAR(60) SuspectName
+        VARCHAR(30) VictimName
+        TEXT CrimeDetails
+        VARCHAR(60) CaseStatus
+    }
+
+    Criminal_Pictures {
+        INT PictureID PK "AUTO_INCREMENT"
+        VARCHAR(11) CriminalID FK
+        VARCHAR(11) CaseID FK
+        VARCHAR(30) CriminalName
+        LONGBLOB Picture
+    }
+
+    crime_records {
+        VARCHAR(30) CrimeType PK
+        INT TotalCases
+        INT SolvedCases
+        INT PendingCases
+        DOUBLE CrimeRate
+    }
+
+    ActivityLog {
+        INT LogID PK "AUTO_INCREMENT"
+        DATETIME Time
+        VARCHAR(10) UserID
+        VARCHAR(10) Role
+        TEXT Activity
+        DATETIME ActivityEndTime
+        VARCHAR(50) ActivityDuration
+    }
+
+    criminal_details ||--|| Criminal_Pictures : "has (circular FK)"
+    Criminal_Pictures ||--o| criminal_details : "references (CriminalID)"
+    Criminal_Pictures ||--o| case_details : "references (CaseID)"
+    case_details ||--o| criminal_details : "references (CriminalID)"
+    case_details ||--o| officer_details : "references (OfficerID)"
+    criminal_details ||--o| officer_details : "references (InvestingOfficerID)"
+```
+
+---
+
+## 📊 Tables Overview
 
 > [!NOTE]  
 > **Database Tables Overview**  
@@ -153,6 +260,17 @@ Below is the database relationship schema mapping the tables and connections:
 > * **`case_details`**: The logbook of all filed FIR reports, detailing crime descriptions, weapon types, locations, victims, and progress status.  
 > * **`Criminal_Pictures`**: Stores physical identification records and binary payloads (`LONGBLOB`) of criminal mugshots.  
 > * **`crime_records`**: Synthesizes real-time crime rate statistics (total, solved, and pending cases) per category.
+> * **`ActivityLog`**: Stores the chronological system events, audits, and user actions for monitoring and session timing.
+
+> [!NOTE]  
+> **`ActivityLog` Schema**  
+> * **`LogID`** (`INT PRIMARY KEY AUTO_INCREMENT`): Unique identifier for each log entry.  
+> * **`Time`** (`DATETIME`): The exact timestamp when the activity started.  
+> * **`UserID`** (`VARCHAR(10)`): The identifier of the user performing the action.  
+> * **`Role`** (`VARCHAR(10)`): The role of the logged user (`Citizen`, `Officer`, `Admin`).  
+> * **`Activity`** (`TEXT`): Description of the action performed (e.g., "Filed FIR report", "Logged out").  
+> * **`ActivityEndTime`** (`DATETIME`): The exact timestamp when the action ended.  
+> * **`ActivityDuration`** (`VARCHAR(50)`): Human-readable duration spent during the user's session action.
 
 ### 🔗 Key Mappings & Constraints
 
@@ -189,6 +307,13 @@ Below is the database relationship schema mapping the tables and connections:
    * **URL**: `jdbc:mysql://localhost:3306/crms`
    * **User**: `root`
    * **Password**: `[Empty]` *(You can change this in `src/DataBase/Database.java` if needed)*
+5. **Import SQL Functions/Routines**:
+   To import the custom database functions (for column details and officer verification):
+   * **Via phpMyAdmin**: Select the `crms` database -> Go to the **Import** tab -> Choose `src/DataBase/routines.sql` -> Click **Import** (or **Go**).
+   * **Via Command Line**: Run the following command:
+     ```bash
+     mysql -u root crms < src/DataBase/routines.sql
+     ```
 
 ### 2. Classpath Configuration
 Ensure that the MySQL Connector/J driver (`mysql-connector-j-9.3.0.jar`) is added to your project dependencies or classpath:
@@ -200,7 +325,7 @@ Ensure that the MySQL Connector/J driver (`mysql-connector-j-9.3.0.jar`) is adde
 ## 🏃 Running the Application
 
 ### Option A: Via Terminal / Command Prompt
-Navigate to the root directory `v103` and execute:
+Navigate to the root directory `CRMSv103` and execute:
 ```bash
 # Compile
 javac -cp "path/to/mysql-connector-j-9.3.0.jar" src/Main.java -d out
@@ -210,7 +335,7 @@ java -cp "out;path/to/mysql-connector-j-9.3.0.jar" CRMS
 ```
 
 ### Option B: Via IntelliJ IDEA
-1. Open the folder `v103` as an IntelliJ project.
+1. Open the folder `CRMSv103` as an IntelliJ project.
 2. Confirm the module SDK is set to Java 8 or above.
 3. Verify that the library dependency path for `mysql-connector-j` is correctly resolved.
 4. Run `Main.java`.

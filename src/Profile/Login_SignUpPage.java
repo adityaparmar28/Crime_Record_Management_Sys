@@ -368,6 +368,39 @@ public class Login_SignUpPage
     {
         if(LSQ.LoginQuery(UID1,passwd1))
         {
+            // Two-Step Authentication
+            if (isCitizen)
+            {
+                System.out.println("[2FA] Initiating Two-Step Authentication (CAPTCHA)...");
+                if (!APIs.Captcha.verifyCaptcha())
+                {
+                    System.err.println("[FAILED] Two-step verification (CAPTCHA) failed. Login cancelled.");
+                    Login_SignUpPage.setLoggedUserID("");
+                    Login_SignUpPage.setLoggedUserRole("");
+                    return false;
+                }
+            }
+            else
+            {
+                String loggedRole = Login_SignUpPage.getLoggedUserRole();
+                if (loggedRole == null || !(loggedRole.equalsIgnoreCase("Admin") || loggedRole.equalsIgnoreCase("Officer")))
+                {
+                    System.err.println("[ACCESS DENIED] Non-officer/Admin account cannot access the officer area.");
+                    Login_SignUpPage.setLoggedUserID("");
+                    Login_SignUpPage.setLoggedUserRole("");
+                    return false;
+                }
+
+                System.out.println("[2FA] Initiating Two-Step Authentication (OTP)...");
+                if (!APIs.OTP.sendAndVerifyOTP())
+                {
+                    System.err.println("[FAILED] Two-step verification (OTP) failed. Login cancelled.");
+                    Login_SignUpPage.setLoggedUserID("");
+                    Login_SignUpPage.setLoggedUserRole("");
+                    return false;
+                }
+            }
+
             System.out.println("------| USER SUCCESSFULLY LOGGED ON |------");
             return true;
         }

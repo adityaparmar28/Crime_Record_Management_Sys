@@ -87,7 +87,7 @@ public class Dashboard
                         System.out.println("|                DIRECTORY POLICE OFFICER LOGIN PAGE                   |");
                         System.out.println("+----------------------------------------------------------------------+");
 
-                        if(LS.userLogin())
+                        if(LS.DGPLogin())
                         {
                             dgp.DirectoryOfPoliceOfficer();
                         }
