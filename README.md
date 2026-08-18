@@ -12,7 +12,7 @@
   POLICE RECORD & COMPLAINT PORTAL
 ```
 
-> 🚨 **A robust, high-performance Crime Record Management System (CRMS) built in Java. Engineered with role-based security, JDBC connection resilience (online/offline fail-safe mode), and real-time analytics. Currently level-upping with custom Data Structures (Priority Queues, DLLs) & background daemon threads for extreme speed! 💻⚡**
+> 🚨 **A robust, high-performance Crime Record Management System (CRMS) built in Java. Engineered with role-based security, JDBC connection resilience (online/offline fail-safe mode), and real-time analytics. Powered by custom low-level Data Structures (Priority Queues, DLLs, Graphs, BSTs) & background daemon threads for extreme execution speed! 💻⚡**
 
 Welcome to the **Crime Record Management System (CRMS)**—a highly structured, modular Java CLI application designed to bridge the gap between citizens and law enforcement. CRMS empowers citizens to file complaints while giving officers a centralized, secure terminal to track investigations, manage criminal dossiers, roster personnel, and generate official documents.
 
@@ -48,9 +48,11 @@ Welcome to the **Crime Record Management System (CRMS)**—a highly structured, 
 
 ## 🚀 Feature Showcase
 
-### 🔒 Secure Role-Based Authentication
+### 🔒 Two-Step Security & Role-Based Access Control (RBAC)
 * **Citizen Portal**: Open registration for the public to file First Information Reports (FIR) and look up case progress.
-* **Officer & Admin Dashboard**: Strict verification required to access police rosters, add criminal records, assign cases, or modify system databases.
+* **Officer & DGP Dashboard**: Strict role-based verification up to the Director General of Police (DGP) level to access police rosters, add criminal records, assign cases, or modify system databases.
+* **Time-Bound CAPTCHA Challenge**: Protects administrative endpoints with a dynamic, multi-threaded alphanumeric CAPTCHA that automatically expires after 30 seconds.
+* **OTP Simulation**: Multi-factor authentication simulation using one-time passwords (OTP) to verify login credentials.
 
 ### 📝 Smart FIR Report Generator
 When an FIR is filed, the system extracts the victim, suspect, crime details, and the logged-in officer’s metadata, generating a structured, ready-to-print official document:
@@ -61,26 +63,21 @@ An automated analytics suite that tracks total cases vs. solved vs. pending, and
 
 ---
 
-## 📅 Roadmap & The Computer Science Behind It (Work in Progress)
+## 🧠 Computer Science & Custom DSA Implementation
 
-We are actively expanding CRMS. In the next release, we are replacing the standard array structures with custom, low-level **Data Structures & Algorithms (DSA)** and introducing **Multi-threaded Background Daemons**:
+To optimize performance and minimize database query overhead, CRMS integrates custom low-level **Data Structures & Algorithms (DSA)** alongside **Multi-threaded Background Daemons**:
 
-### 🧠 1. Custom DSA Implementation
-* **Why Doubly Linked List (DLL)?**
-  * Used for navigating through criminal histories sequentially (Next/Previous offense) with \(O(1)\) node insertion and deletion.
-* **Why Priority Queue?**
-  * *Because a murder investigation shouldn't wait behind a traffic parking fine!* The Priority Queue will sort pending cases by crime severity, routing critical investigations to the top of the roster automatically.
-* **Why Stack?**
-  * Implements a history stack so officers can navigate the multi-tier menu system or undo/redo edits to case logs.
-* **Why Queue?**
-  * Implements a FIFO (First-In, First-Out) pipeline to process citizen complaint registrations in the order they are received.
+### 1. Custom DSA Core
+* **Custom Doubly Linked List (DLL)** (`CustomDoublyLinkList.java`): Used for navigating through criminal histories sequentially (Next/Previous offense) with \(O(1)\) node insertion and deletion.
+* **Custom Priority Queue** (`CustomPriorityQueue.java`): Prioritizes pending cases by crime severity, automatically routing critical investigations to the top of the roster.
+* **Custom Binary Search Tree (BST)** (`CustomBinarySearchTree.java`): Speeds up case searches by indexing case details by their primary keys, allowing \(O(\log n)\) lookup time.
+* **Custom Graph** (`CustomGraph.java`): Models relationships and connections between different suspects, criminals, and crime events.
+* **Custom Stack** (`CustomStack.java`): Implements a history stack so officers can navigate the multi-tier menu system or undo/redo edits to case logs.
+* **Custom Queue** (`CustomQueue.java`): Implements a FIFO (First-In, First-Out) pipeline to process citizen complaint registrations in the order they are received.
 
-### 🧵 2. Multi-threaded Background Workers
-* **JDBC Sync Daemon**: Runs in the background, polling database connection status every minute to switch modes dynamically without interrupting active CLI menus.
-* **Logging Engine Daemon**: Runs on a separate thread to write transaction audits and activity histories asynchronously, ensuring the main interface remains latency-free.
-
-### 📝 3. Immutable Activity History Logs
-* An append-only log file system tracking user IDs, actions, and exact timestamps (e.g., `[2026-08-16 00:04:58][OFFICER-403] updated CASE-7645 status to 'Solved'`) to prevent unauthorized modifications and provide full auditability.
+### 2. Multi-threaded Background Workers
+* **JDBC Sync Daemon** (`Database.java`): Runs as a background daemon thread, polling database connection status every minute to switch modes dynamically without interrupting active CLI menus.
+* **Timed CAPTCHA Thread** (`APIs/Captcha.java`): Controls timed input reading to auto-expire alphanumeric security challenges after 30 seconds.
 
 ---
 
@@ -90,6 +87,12 @@ We are actively expanding CRMS. In the next release, we are replacing the standa
 v103/
 ├── .idea/                 # IntelliJ IDEA configuration files
 ├── src/                   # Source directory for the Java application
+│   ├── APIs/              # Security and Helper APIs (Captcha, OTP, TimeStamp, custom exceptions)
+│   │   ├── AuthorizationException.java
+│   │   ├── Captcha.java
+│   │   ├── DBConnectionException.java
+│   │   ├── OTP.java
+│   │   └── TimeStamp.java
 │   ├── DataBase/          # Database configuration, connection management, schema validation & data seeding
 │   │   ├── CreateTable.java
 │   │   ├── Database.java
@@ -97,13 +100,20 @@ v103/
 │   │   ├── InsertData.java
 │   │   ├── table_relation_schema.png # Database relationship schema diagram
 │   │   └── Validation.java
-│   ├── DataStructure/     # Files and local report exports
+│   ├── DataStructure/     # Custom Data Structures & algorithms for in-memory processing
+│   │   ├── CustomBinarySearchTree.java
+│   │   ├── CustomDoublyLinkList.java
+│   │   ├── CustomGraph.java
+│   │   ├── CustomPriorityQueue.java
+│   │   ├── CustomQueue.java
+│   │   ├── CustomStack.java
+│   │   ├── DataStructure.java
 │   │   └── IOFiles.java
 │   ├── Layout/            # Command Line Interface (CLI) menus & user layouts
-│   │   ├── Dashboard.java
 │   │   ├── CrimeMngr.java
 │   │   ├── CRMngr.java
-│   │   ├── DIG.java
+│   │   ├── DGP.java
+│   │   ├── Dashboard.java
 │   │   └── Investigation.java
 │   ├── Profile/           # User authentication and profile settings
 │   │   ├── Login_SignUpPage.java
@@ -111,7 +121,7 @@ v103/
 │   ├── Quries/            # Raw SQL Query execution files for database operations
 │   │   ├── CRMngrQueries.java
 │   │   ├── CrimeMngrQueries.java
-│   │   ├── DIGQueries.java
+│   │   ├── DGPQueries.java
 │   │   ├── IAQueries.java
 │   │   ├── Login_SignUp_Queries.java
 │   │   ├── OODataQueries.java
@@ -119,6 +129,8 @@ v103/
 │   └── Main.java
 ├── CasesData.txt          # Active exported database
 ├── OfficerData.txt        # Active officer roster export
+├── LICENSE                # Apache 2.0 License Agreement
+├── NOTICE                 # Attribution and copyright notice
 ├── README.md              # Documentation
 └── v103.iml               # IntelliJ module file
 ```
