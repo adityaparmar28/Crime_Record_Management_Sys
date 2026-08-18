@@ -18,13 +18,13 @@ package Quries;
 import DataBase.DataFound;
 import DataBase.Database;
 import DataBase.Validation;
+import DataStructure.CustomDoublyLinkList;
+import DataStructure.CustomPriorityQueue;
 import DataStructure.DataStructure;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Scanner;
-import DataStructure.CustomPriorityQueue;
-import DataStructure.CustomDoublyLinkList;
 
 public class IAQueries
 {
@@ -41,7 +41,7 @@ public class IAQueries
         PCS.clear();
         String PenCases="select * from case_details where CaseStatus is null or lower(CaseStatus)=?";
         PreparedStatement QPCase= Database.getConnection().prepareStatement(PenCases);
-        QPCase.setString(1,"pending");
+        QPCase.setString(1,"Pending");
         ResultSet PCase_rs=QPCase.executeQuery();
 
         System.out.println("+-------------------------------------------------------------------------------------------------------------------+");
@@ -121,7 +121,7 @@ public class IAQueries
         }
         else
         {
-            System.out.println("[INFO] No pending cases found.");
+            System.out.println("[INFO] No pending cases found....");
         }
 
         System.out.println("+-------------------------------------------------------------------------------------------------------------------+");
@@ -153,6 +153,11 @@ public class IAQueries
         System.out.print("Enter Updating "+UpColummName+": ");
 
         Object UpdatingValue=OODQ.SQLDType2JDType(UpColummName,TableName);
+
+        if (!APIs.Captcha.verifyCaptcha())
+        {
+            return;
+        }
 
         Database.con.setAutoCommit(false);
 

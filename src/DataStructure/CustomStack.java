@@ -45,51 +45,23 @@ public class CustomStack
         {
             if (DataBase.Database.testConnection())
             {
-                long endTimeMs = System.currentTimeMillis();
-                long startTimeMs = Profile.Login_SignUpPage.lastActionTime;
-
-                if (startTimeMs <= 0 || startTimeMs > endTimeMs)
-                {
-                    startTimeMs = endTimeMs;
-                }
-
-                long durationMs = endTimeMs - startTimeMs;
-                Profile.Login_SignUpPage.lastActionTime = endTimeMs;
+                long startTimeMs = APIs.TimeStamp.getLastActivityTime();
+                long durationMs = APIs.TimeStamp.getDurationAndReset();
+                long endTimeMs = APIs.TimeStamp.getCurrentTime();
 
                 String durationStr = formatDuration(durationMs);
 
-                String uId = Profile.Login_SignUpPage.LoggedUserID;
-                String role = Profile.Login_SignUpPage.LoggedUserRole;
+                String uId = Profile.Login_SignUpPage.getLoggedUserID();
+                String role = Profile.Login_SignUpPage.getLoggedUserRole();
 
-                if (uId == null || uId.isEmpty())
+                if (uId == null || uId.equals(""))
                 {
+                    uId = "Guest";
+                    role = "Citizen";
+
                     if (value.startsWith("Signed up new user: "))
                     {
-                        uId = value.substring("Signed up new user: ".length()).trim();
-                        role = "Citizen";
-                    }
-                    else if (value.startsWith("Logged in user: "))
-                    {
-                        int startIndex = "Logged in user: ".length();
-                        int endIndex = value.indexOf(" (");
-                        if (endIndex != -1)
-                        {
-                            uId = value.substring(startIndex, endIndex).trim();
-                        }
-                        else
-                        {
-                            uId = value.substring(startIndex).trim();
-                        }
-                        role = Profile.Login_SignUpPage.LoggedUserRole;
-                        if (role == null || role.isEmpty())
-                        {
-                            role = "Citizen";
-                        }
-                    }
-                    else
-                    {
-                        uId = "Guest";
-                        role = "Citizen";
+                        uId = value.replace("Signed up new user: ", "");
                     }
                 }
 
@@ -97,21 +69,22 @@ public class CustomStack
                 Timestamp endTime = new Timestamp(endTimeMs);
 
                 String sql = "INSERT INTO ActivityLog (Time, UserID, Role, Activity, ActivityEndTime, ActivityDuration) VALUES (?, ?, ?, ?, ?, ?)";
-                try (PreparedStatement ps = DataBase.Database.getConnection().prepareStatement(sql))
-                {
-                    ps.setTimestamp(1, startTime);
-                    ps.setString(2, uId);
-                    ps.setString(3, role);
-                    ps.setString(4, value);
-                    ps.setTimestamp(5, endTime);
-                    ps.setString(6, durationStr);
-                    ps.executeUpdate();
-                }
+                PreparedStatement ps = DataBase.Database.getConnection().prepareStatement(sql);
+                
+                ps.setTimestamp(1, startTime);
+                ps.setString(2, uId);
+                ps.setString(3, role);
+                ps.setString(4, value);
+                ps.setTimestamp(5, endTime);
+                ps.setString(6, durationStr);
+                
+                ps.executeUpdate();
+                ps.close();
             }
         }
         catch (Exception e)
         {
-            System.err.println("[WARNING] Failed to save activity log to database: " + e.getMessage());
+            System.err.println("[WARNING] Failed to save activity log: " + e.getMessage());
         }
     }
 
@@ -121,6 +94,7 @@ public class CustomStack
         {
             return null;
         }
+
         String val = top.data;
         top = top.next;
         return val;
@@ -146,10 +120,10 @@ public class CustomStack
         {
             if (DataBase.Database.testConnection())
             {
-                 String uId = Profile.Login_SignUpPage.LoggedUserID;
+                 String uId = Profile.Login_SignUpPage.getLoggedUserID();
                  if (uId == null || uId.isEmpty())
                  {
-                     System.out.println("[INFO] No logged in user. Cannot retrieve logs.");
+                     System.out.println("[INFO] No logged in user....Cannot retrieve history....");
                      return;
                  }
 
@@ -160,6 +134,7 @@ public class CustomStack
                     try (ResultSet rs = ps.executeQuery())
                     {
                         boolean hasLogs = false;
+
                         while (rs.next())
                         {
                             hasLogs = true;
@@ -205,16 +180,20 @@ public class CustomStack
     private String formatDuration(long durationMs)
     {
         long durationSec = durationMs / 1000;
+
         if (durationSec < 60)
         {
             return durationSec + " seconds";
         }
+
         long minutes = durationSec / 60;
         long seconds = durationSec % 60;
+
         if (seconds == 0)
         {
             return minutes + " minutes";
         }
+
         return minutes + " minutes " + seconds + " seconds";
     }
 }

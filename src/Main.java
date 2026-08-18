@@ -25,6 +25,11 @@ class CRMS
     {
         Database DB=new Database();
         DB.DefaultDataBase();
+
+        // Start background database connection monitoring....
+        DB.setDaemon(true);
+        DB.start();
+
         Login_SignUpPage LSP=new Login_SignUpPage();
         Scanner sc=new Scanner(System.in);
 
@@ -40,7 +45,8 @@ class CRMS
             System.out.println("| 4. Exit");
             System.out.println("+---------------------------------------------------+");
 
-            try {
+            try
+            {
                 System.out.print("| Enter Choice: ");
                 Page_ch = sc.nextInt();
             }

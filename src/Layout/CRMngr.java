@@ -20,10 +20,9 @@ import Quries.CRMngrQueries;
 
 import java.util.Scanner;
 
-public class CRMngr
+public class CRMngr extends CRMngrQueries
 {
     Scanner sc=new Scanner(System.in);
-    CRMngrQueries CRQ=new CRMngrQueries();
     Login_SignUpPage LSP=new Login_SignUpPage();
 
     public void CrimeRecordManager() throws Exception
@@ -56,93 +55,100 @@ public class CRMngr
                 continue; // Restart the loop
             }
 
-            switch (crm_ch)
+            try
             {
-                case 1:
+                switch (crm_ch)
                 {
-                    if (Login_SignUpPage.LoggedUserID.equals(""))
+                    case 1:
                     {
-                        System.out.println("[INFO] You must be logged in to add criminal records....LogIn First....");
-                        if (!LSP.DGPLogin())
+                        if (Login_SignUpPage.getLoggedUserID().equals(""))
                         {
-                            System.err.println("[ERROR] Login failed....Returning....");
-                            break;
+                            System.out.println("[INFO] You must be logged in to add criminal records....LogIn First....");
+                            if (!LSP.DGPLogin())
+                            {
+                                System.err.println("[ERROR] Login failed....Returning....");
+                                break;
+                            }
                         }
-                    }
 
-                    if(!(Login_SignUpPage.LoggedUserRole.equalsIgnoreCase("Admin") ||
-                            Login_SignUpPage.LoggedUserRole.equalsIgnoreCase("Officer")))
-                    {
-                        System.err.println("[WARNING] Only Directory of Police Officers Members (Admin/Officer) can Add Criminal....");
-                    }
-                    else
-                    {
-                        // Add Criminal Record
-                        addCriminalRecord();
-                    }
-                    break;
-                }
-
-                case 2:
-                {
-                    // Search Criminal
-                    searchCriminal();
-                    break;
-                }
-
-                case 3:
-                {
-                    // List of All Criminals
-                    AllCriminal();
-                    break;
-                }
-
-                case 4:
-                {
-                    if (Login_SignUpPage.LoggedUserID.equals(""))
-                    {
-                        System.out.println("[INFO] You must be logged in to update criminal records....Log-In first.");
-                        if (!LSP.DGPLogin())
+                        if(!(Login_SignUpPage.getLoggedUserRole().equalsIgnoreCase("Admin") ||
+                                Login_SignUpPage.getLoggedUserRole().equalsIgnoreCase("Officer")))
                         {
-                            System.err.println("[ERROR] Login failed....Returning....");
-                            break;
+                            throw new APIs.AuthorizationException("Only Directory of Police Officers Members (Admin/Officer) can Add Criminal....");
                         }
+                        else
+                        {
+                            // Add Criminal Record
+                            addCriminalRecord();
+                        }
+                        break;
                     }
 
-                    if(!(Login_SignUpPage.LoggedUserRole.equalsIgnoreCase("Admin") ||
-                            Login_SignUpPage.LoggedUserRole.equalsIgnoreCase("Officer")))
+                    case 2:
                     {
-                        System.err.println("[WARNING] Only Directory of Police Officers Members (Admin/Officer) can Update Criminal Details....");
+                        // Search Criminal
+                        searchCriminal();
+                        break;
                     }
-                    else
+
+                    case 3:
                     {
-                        // Update Criminal Record
-                        UpdateCriminalRecord();
+                        // List of All Criminals
+                        AllCriminal();
+                        break;
                     }
-                    break;
-                }
 
-                case 5:
-                {
-                    // Show Accomplice Graph
-                    showAccompliceGraph();
-                    break;
-                }
+                    case 4:
+                    {
+                        if (Login_SignUpPage.getLoggedUserID().equals(""))
+                        {
+                            System.out.println("[INFO] You must be logged in to update criminal records....Log-In first....");
+                            if (!LSP.DGPLogin())
+                            {
+                                System.err.println("[ERROR] Login failed....Returning....");
+                                break;
+                            }
+                        }
 
-                case 6:
-                {
-                    // Home Page
-                    sc.nextLine();
-                    isCRML=true;
+                        if(!(Login_SignUpPage.getLoggedUserRole().equalsIgnoreCase("Admin") ||
+                                Login_SignUpPage.getLoggedUserRole().equalsIgnoreCase("Officer")))
+                        {
+                            throw new APIs.AuthorizationException("Only Directory of Police Officers Members (Admin/Officer) can Update Criminal Details....");
+                        }
+                        else
+                        {
+                            // Update Criminal Record
+                            UpdateCriminalRecord();
+                        }
+                        break;
+                    }
 
-                    sc.nextLine();
-                    return;
-                }
+                    case 5:
+                    {
+                        // Show Accomplice Graph
+                        showAccompliceGraph();
+                        break;
+                    }
 
-                default:
-                {
-                    System.err.println("[ERROR] Invalid choice....Enter a valid choice....");
+                    case 6:
+                    {
+                        // Home Page
+                        sc.nextLine();
+                        isCRML=true;
+
+                        sc.nextLine();
+                        return;
+                    }
+
+                    default:
+                    {
+                        System.err.println("[ERROR] Invalid choice....Enter a valid choice....");
+                    }
                 }
+            }
+            catch (APIs.AuthorizationException e)
+            {
+                System.err.println("[WARNING] " + e.getMessage());
             }
         }
     }
@@ -150,31 +156,30 @@ public class CRMngr
     void addCriminalRecord() throws Exception
     {
         //first login as adg or police officer then process of add criminal record
-        CRQ.AddCriminalRQuery();
-
+        AddCriminalRQuery();
     }
 
     void searchCriminal() throws Exception
     {
         // Implementation for searching criminal
         //throgh logic and query...
-        CRQ.SearchCriminalRecord();
+        SearchCriminalRecord();
     }
 
     void AllCriminal() throws Exception
     {
         //all criminals and recently added criminals synced data through Query....
-        CRQ.AllCriminalRecord();
+        AllCriminalRecord();
     }
 
     void UpdateCriminalRecord() throws Exception
     {
         //first login as adg then process of update criminal record
-        CRQ.UpdateCriminalRQuery();
+        UpdateCriminalRQuery();
     }
 
     void showAccompliceGraph() throws Exception
     {
-        CRQ.ShowCriminalAccompliceGraph();
+        ShowCriminalAccompliceGraph();
     }
 }

@@ -31,7 +31,7 @@ public class Dashboard
     {
         CRMngr crMngr = new CRMngr();
         CrimeMngr crimeMngr = new CrimeMngr();
-        DIG dig = new DIG();
+        DGP dgp = new DGP();
         Investigation investigation = new Investigation();
         User userProfile = new User();
         Scanner sc=new Scanner(System.in);
@@ -45,7 +45,7 @@ public class Dashboard
             System.out.println("+----------------------------------------------------------------------+");
             System.out.println("| 1. Crime Management (FIR & Cases)");
             System.out.println("| 2. Crime Record Manager (Criminals)");
-            System.out.println("| 3. Directory of Police Officers (DIG)");
+            System.out.println("| 3. Directory of Police Officers (DGP)");
             System.out.println("| 4. Crime Investigation Bureau (Pending Cases)");
             System.out.println("| 5. User Profile");
             System.out.println("| 6. Logout");
@@ -89,7 +89,7 @@ public class Dashboard
 
                         if(LS.userLogin())
                         {
-                            dig.DirectoryOfPoliceOfficer();
+                            dgp.DirectoryOfPoliceOfficer();
                         }
                         else
                         {
@@ -113,9 +113,9 @@ public class Dashboard
 
                     case 6:
                     {
-                        DataStructure.DataStructure.ActivityLog.push("Logged out user: " + Login_SignUpPage.LoggedUserID);
-                        Login_SignUpPage.LoggedUserID="";
-                        Login_SignUpPage.LoggedUserRole="";
+                        DataStructure.DataStructure.ActivityLog.push("Logged out user: " + Login_SignUpPage.getLoggedUserID());
+                        Login_SignUpPage.setLoggedUserID("");
+                        Login_SignUpPage.setLoggedUserRole("");
                         System.out.println("Logged out successfully....");
                         inDashboard = false;
                         break;

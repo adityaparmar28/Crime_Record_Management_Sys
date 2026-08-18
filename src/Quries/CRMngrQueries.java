@@ -86,7 +86,8 @@ public class CRMngrQueries
             }
             else
             {
-                System.err.println("[INVALID] Invalid Crime Type. Valid crime types are: Robbery, Cyber Crime, Murder, Kidnapping, Drug Crime, Traffic Violation.");
+                System.err.println("[INVALID] Invalid Crime Type....");
+                System.out.println("[VALID]  crime types are: Robbery, Cyber Crime, Murder, Kidnapping, Drug Crime, Traffic Violation....");
             }
         }
 
@@ -126,16 +127,24 @@ public class CRMngrQueries
         String recDept = "";
         String prefixO = "";
         String ctLower = C_CrimeType.toLowerCase();
-        if (ctLower.contains("cyber")) {
+
+        if (ctLower.contains("cyber"))
+        {
             recDept = "Cyber Cell";
             prefixO = "CYO";
-        } else if (ctLower.contains("robbery") || ctLower.contains("murder") || ctLower.contains("drug")) {
+        }
+        else if (ctLower.contains("robbery") || ctLower.contains("murder") || ctLower.contains("drug"))
+        {
             recDept = "Crime Branch";
             prefixO = "CBO";
-        } else if (ctLower.contains("kidnap")) {
+        }
+        else if (ctLower.contains("kidnap"))
+        {
             recDept = "Women Cell";
             prefixO = "WCO";
-        } else if (ctLower.contains("traffic")) {
+        }
+        else if (ctLower.contains("traffic"))
+        {
             recDept = "Traffic";
             prefixO = "TRO";
         }
@@ -146,16 +155,22 @@ public class CRMngrQueries
         String AvailOffQuery = "select OfficerID, Name, Department, StationID, OfficerStatus from officer_details " +
                                "where AssignedCase is null or AssignedCase = '' or lower(CaseStatus) = 'solved' " +
                                "order by case when Department = ? then 0 else 1 end, Department, Name";
-        try (PreparedStatement QAvail = Database.getConnection().prepareStatement(AvailOffQuery)) {
+
+        try (PreparedStatement QAvail = Database.getConnection().prepareStatement(AvailOffQuery))
+        {
             QAvail.setString(1, recDept);
-            try (ResultSet av_rs = QAvail.executeQuery()) {
-                System.out.println("\nAvailable Officers for Assignment (Recommended Department Listed First):");
+
+            try (ResultSet av_rs = QAvail.executeQuery())
+            {
+                System.out.println("Available Officers for Assignment (Recommended Department Listed First):");
                 System.out.println("+------------+----------------------+------------------+------------+-----------------+");
                 System.out.printf("| %-10s | %-20s | %-16s | %-10s | %-15s |\n", "Officer ID", "Name", "Department", "Station ID", "Officer Status");
                 System.out.println("+------------+----------------------+------------------+------------+-----------------+");
 
                 boolean hasAvail = false;
-                while (av_rs.next()) {
+
+                while (av_rs.next())
+                {
                     hasAvail = true;
                     System.out.printf("| %-10s | %-20s | %-16s | %-10s | %-15s |\n",
                         av_rs.getString("OfficerID"),
@@ -164,11 +179,14 @@ public class CRMngrQueries
                         av_rs.getString("StationID") != null ? av_rs.getString("StationID") : "N/A",
                         av_rs.getString("OfficerStatus") != null ? av_rs.getString("OfficerStatus") : "N/A"
                     );
+
                 }
-                if (!hasAvail) {
-                    System.out.println("|                      No available officers found.                           |");
+
+                if (!hasAvail)
+                {
+                    System.out.println("|                         No available officers found....                           |");
                 }
-                System.out.println("+------------+----------------------+------------------+------------+-----------------+\n");
+                System.out.println("+------------+----------------------+------------------+------------+-----------------+");
             }
         }
 
@@ -191,6 +209,11 @@ public class CRMngrQueries
             {
                 CaseSLoop=true;
             }
+        }
+
+        if (!APIs.Captcha.verifyCaptcha())
+        {
+            return;
         }
 
         Database.con.setAutoCommit(false);
@@ -225,7 +248,8 @@ public class CRMngrQueries
 
             // Sync with officer_details
             String upOffQuery = "update officer_details set AssignedCase=?, CaseStatus='Investigating', OfficerStatus='Active' where OfficerID=?";
-            try (PreparedStatement upOff = Database.getConnection().prepareStatement(upOffQuery)) {
+            try (PreparedStatement upOff = Database.getConnection().prepareStatement(upOffQuery))
+            {
                 upOff.setString(1, C_CaseID);
                 upOff.setString(2, C_IOffID);
                 upOff.executeUpdate();
@@ -295,22 +319,34 @@ public class CRMngrQueries
                     String recDept = "";
                     String prefixO = "";
                     String getCaseType = "select CaseType from case_details where CaseID=?";
-                    try (PreparedStatement qct = Database.getConnection().prepareStatement(getCaseType)) {
+                    try (PreparedStatement qct = Database.getConnection().prepareStatement(getCaseType))
+                    {
                         qct.setString(1, C_CaseID);
-                        try (ResultSet rsct = qct.executeQuery()) {
-                            if (rsct.next()) {
+
+                        try (ResultSet rsct = qct.executeQuery())
+                        {
+                            if (rsct.next())
+                            {
                                 String caseType = rsct.getString("CaseType");
                                 String ctLower = caseType.toLowerCase();
-                                if (ctLower.contains("cyber")) {
+
+                                if (ctLower.contains("cyber"))
+                                {
                                     recDept = "Cyber Cell";
                                     prefixO = "CYO";
-                                } else if (ctLower.contains("robbery") || ctLower.contains("murder") || ctLower.contains("drug")) {
+                                }
+                                else if (ctLower.contains("robbery") || ctLower.contains("murder") || ctLower.contains("drug"))
+                                {
                                     recDept = "Crime Branch";
                                     prefixO = "CBO";
-                                } else if (ctLower.contains("kidnap")) {
+                                }
+                                else if (ctLower.contains("kidnap"))
+                                {
                                     recDept = "Women Cell";
                                     prefixO = "WCO";
-                                } else if (ctLower.contains("traffic")) {
+                                }
+                                else if (ctLower.contains("traffic"))
+                                {
                                     recDept = "Traffic";
                                     prefixO = "TRO";
                                 }
@@ -318,22 +354,28 @@ public class CRMngrQueries
                         }
                     }
 
-                    System.out.println("\nRecommended Department for this Crime: " + (recDept.isEmpty() ? "Any" : recDept));
+                    System.out.println("Recommended Department for this Crime: " + (recDept.isEmpty() ? "Any" : recDept));
 
                     // Query available officers sorted by recommended department first
                     String AvailOffQuery = "select OfficerID, Name, Department, StationID, OfficerStatus from officer_details " +
                                            "where AssignedCase is null or AssignedCase = '' or lower(CaseStatus) = 'solved' " +
                                            "order by case when Department = ? then 0 else 1 end, Department, Name";
-                    try (PreparedStatement QAvail = Database.getConnection().prepareStatement(AvailOffQuery)) {
+
+                    try (PreparedStatement QAvail = Database.getConnection().prepareStatement(AvailOffQuery))
+                    {
                         QAvail.setString(1, recDept);
-                        try (ResultSet av_rs = QAvail.executeQuery()) {
-                            System.out.println("\nAvailable Officers for Assignment (Recommended Department Listed First):");
+
+                        try (ResultSet av_rs = QAvail.executeQuery())
+                        {
+                            System.out.println("Available Officers for Assignment (Recommended Department Listed First):");
                             System.out.println("+------------+----------------------+------------------+------------+-----------------+");
                             System.out.printf("| %-10s | %-20s | %-16s | %-10s | %-15s |\n", "Officer ID", "Name", "Department", "Station ID", "Officer Status");
                             System.out.println("+------------+----------------------+------------------+------------+-----------------+");
 
                             boolean hasAvail = false;
-                            while (av_rs.next()) {
+
+                            while (av_rs.next())
+                            {
                                 hasAvail = true;
                                 System.out.printf("| %-10s | %-20s | %-16s | %-10s | %-15s |\n",
                                     av_rs.getString("OfficerID"),
@@ -343,7 +385,9 @@ public class CRMngrQueries
                                     av_rs.getString("OfficerStatus") != null ? av_rs.getString("OfficerStatus") : "N/A"
                                 );
                             }
-                            if (!hasAvail) {
+
+                            if (!hasAvail)
+                            {
                                 System.out.println("|                      No available officers found.                           |");
                             }
                             System.out.println("+------------+----------------------+------------------+------------+-----------------+\n");
@@ -442,6 +486,11 @@ public class CRMngrQueries
 
     void UpdateIOffID(String oid, String CaseID) throws Exception
     {
+        if (!APIs.Captcha.verifyCaptcha())
+        {
+            return;
+        }
+
         Database.con.setAutoCommit(false);
 
         String UCri_IOID = "update criminal_details set InvestingOfficerID=?, CaseStatus='Investigating' where CaseID=?";
@@ -482,6 +531,11 @@ public class CRMngrQueries
 
     void UpdateCaseStatus(String Status, String CaseID) throws Exception
     {
+        if (!APIs.Captcha.verifyCaptcha())
+        {
+            return;
+        }
+
         Database.con.setAutoCommit(false);
 
         String UCase_Status = "update criminal_details set CaseStatus=? where CaseID=?";
@@ -522,6 +576,11 @@ public class CRMngrQueries
 
     void UpdateCriminalStatus(String Status, String CaseID) throws Exception
     {
+        if (!APIs.Captcha.verifyCaptcha())
+        {
+            return;
+        }
+
         Database.con.setAutoCommit(false);
 
         String UCri_Status = "update criminal_details set CriminalStatus=? where CaseID=?";
@@ -546,6 +605,11 @@ public class CRMngrQueries
 
     void SetUpdateBail(String BailDate, String CaseID) throws Exception
     {
+        if (!APIs.Captcha.verifyCaptcha())
+        {
+            return;
+        }
+
         Database.con.setAutoCommit(false);
 
         String UBail_Date = "update criminal_details set BailDate=? where CaseID=?";
@@ -570,6 +634,11 @@ public class CRMngrQueries
 
     void UpdateReleaseDate(String ReleaseDate, String CaseID) throws Exception
     {
+        if (!APIs.Captcha.verifyCaptcha())
+        {
+            return;
+        }
+
         Database.con.setAutoCommit(false);
 
         String URelease_Date = "update criminal_details set ReleaseDate=? where CaseID=?";
@@ -818,7 +887,7 @@ public class CRMngrQueries
                 return;
             }
 
-            if(Login_SignUpPage.LoggedUserID =="")
+            if(Login_SignUpPage.getLoggedUserID().equals(""))
             {
                 if(LSP.userLogin())
                 {
@@ -979,7 +1048,7 @@ public class CRMngrQueries
                 return;
             }
 
-            if(Login_SignUpPage.LoggedUserID =="")
+            if(Login_SignUpPage.getLoggedUserID().equals(""))
             {
                 if(LSP.userLogin())
                 {

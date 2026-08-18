@@ -18,6 +18,8 @@ package Quries;
 import DataBase.DataFound;
 import DataBase.Database;
 import DataBase.Validation;
+import DataStructure.CustomDoublyLinkList;
+import DataStructure.CustomPriorityQueue;
 import DataStructure.DataStructure;
 import DataStructure.IOFiles;
 import Profile.Login_SignUpPage;
@@ -26,8 +28,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Objects;
 import java.util.Scanner;
-import DataStructure.CustomPriorityQueue;
-import DataStructure.CustomDoublyLinkList;
 
 public class CrimeMngrQueries
 {
@@ -190,6 +190,11 @@ public class CrimeMngrQueries
             return;
         }
 
+
+        if (!APIs.Captcha.verifyCaptcha())
+        {
+            return;
+        }
 
         // 1. Insert into case_details (leaving CriminalID NULL initially to avoid FK constraint fail)
         String FileFIR="insert into case_details(CaseID,CaseType,CrimeLocation,CrimeWeapon,SuspectName,VictimName,CrimeDetails,CaseName) values(?,?,?,?,?,?,?,?)";
@@ -383,7 +388,7 @@ public class CrimeMngrQueries
                 return;
             }
 
-            if(Login_SignUpPage.LoggedUserID =="")
+            if(Login_SignUpPage.getLoggedUserID().equals(""))
             {
                 if(LSP.userLogin())
                 {
@@ -542,7 +547,7 @@ public class CrimeMngrQueries
                 return;
             }
 
-            if(Objects.equals(Login_SignUpPage.LoggedUserID, ""))
+            if(Objects.equals(Login_SignUpPage.getLoggedUserID(), ""))
             {
                 if(LSP.userLogin())
                 {
@@ -627,7 +632,7 @@ public class CrimeMngrQueries
         {
             ResultSet fileSet=QAC.executeQuery();
 
-            if(Login_SignUpPage.LoggedUserID =="")
+            if(Login_SignUpPage.getLoggedUserID().equals(""))
             {
                 if(LSP.userLogin())
                 {
@@ -755,7 +760,7 @@ public class CrimeMngrQueries
 
                 while (!isPic)
                 {
-                    System.out.println("Enter Picture Path in Double Quote: ");
+                    System.out.print("Enter Picture Path in Double Quote: ");
                     String path = sc.next();
 
                     if (path == null)
@@ -791,6 +796,11 @@ public class CrimeMngrQueries
     void UpdateCriID(String c_id) throws Exception
     {
         String CriID=v.readNonEmptyString("Enter Updating Criminal ID: ");
+
+        if (!APIs.Captcha.verifyCaptcha())
+        {
+            return;
+        }
 
         Database.con.setAutoCommit(false);
 
@@ -830,22 +840,35 @@ public class CrimeMngrQueries
         String recDept = "";
         String prefixO = "";
         String getCaseType = "select CaseType from case_details where CaseID=?";
-        try (PreparedStatement qct = Database.getConnection().prepareStatement(getCaseType)) {
+
+        try (PreparedStatement qct = Database.getConnection().prepareStatement(getCaseType))
+        {
             qct.setString(1, c_id);
-            try (ResultSet rsct = qct.executeQuery()) {
-                if (rsct.next()) {
+
+            try (ResultSet rsct = qct.executeQuery())
+            {
+                if (rsct.next())
+                {
                     String caseType = rsct.getString("CaseType");
                     String ctLower = caseType.toLowerCase();
-                    if (ctLower.contains("cyber")) {
+
+                    if (ctLower.contains("cyber"))
+                    {
                         recDept = "Cyber Cell";
                         prefixO = "CYO";
-                    } else if (ctLower.contains("robbery") || ctLower.contains("murder") || ctLower.contains("drug")) {
+                    }
+                    else if (ctLower.contains("robbery") || ctLower.contains("murder") || ctLower.contains("drug"))
+                    {
                         recDept = "Crime Branch";
                         prefixO = "CBO";
-                    } else if (ctLower.contains("kidnap")) {
+                    }
+                    else if (ctLower.contains("kidnap"))
+                    {
                         recDept = "Women Cell";
                         prefixO = "WCO";
-                    } else if (ctLower.contains("traffic")) {
+                    }
+                    else if (ctLower.contains("traffic"))
+                    {
                         recDept = "Traffic";
                         prefixO = "TRO";
                     }
@@ -853,23 +876,30 @@ public class CrimeMngrQueries
             }
         }
 
-        System.out.println("\nRecommended Department for this Crime: " + (recDept.isEmpty() ? "Any" : recDept));
+        System.out.println("Recommended Department for this Crime: " + (recDept.isEmpty() ? "Any" : recDept));
 
         // Query available officers sorted by recommended department first
         String AvailOffQuery = "select OfficerID, Name, Department, StationID, OfficerStatus from officer_details " +
                                "where AssignedCase is null or AssignedCase = '' or lower(CaseStatus) = 'solved' " +
                                "order by case when Department = ? then 0 else 1 end, Department, Name";
-        try (PreparedStatement QAvail = Database.getConnection().prepareStatement(AvailOffQuery)) {
+
+        try (PreparedStatement QAvail = Database.getConnection().prepareStatement(AvailOffQuery))
+        {
             QAvail.setString(1, recDept);
-            try (ResultSet av_rs = QAvail.executeQuery()) {
-                System.out.println("\nAvailable Officers for Assignment (Recommended Department Listed First):");
+
+            try (ResultSet av_rs = QAvail.executeQuery())
+            {
+                System.out.println("Available Officers for Assignment (Recommended Department Listed First):");
                 System.out.println("+------------+----------------------+------------------+------------+-----------------+");
                 System.out.printf("| %-10s | %-20s | %-16s | %-10s | %-15s |\n", "Officer ID", "Name", "Department", "Station ID", "Officer Status");
                 System.out.println("+------------+----------------------+------------------+------------+-----------------+");
 
                 boolean hasAvail = false;
-                while (av_rs.next()) {
+
+                while (av_rs.next())
+                {
                     hasAvail = true;
+
                     System.out.printf("| %-10s | %-20s | %-16s | %-10s | %-15s |\n",
                         av_rs.getString("OfficerID"),
                         av_rs.getString("Name"),
@@ -878,8 +908,10 @@ public class CrimeMngrQueries
                         av_rs.getString("OfficerStatus") != null ? av_rs.getString("OfficerStatus") : "N/A"
                     );
                 }
-                if (!hasAvail) {
-                    System.out.println("|                      No available officers found.                           |");
+
+                if (!hasAvail)
+                {
+                    System.out.println("|                       No available officers found....                           |");
                 }
                 System.out.println("+------------+----------------------+------------------+------------+-----------------+\n");
             }
@@ -889,6 +921,11 @@ public class CrimeMngrQueries
         String officerSuffix = sc.next();
         sc.nextLine(); // Clear buffer
         String OffID = prefixO + officerSuffix;
+
+        if (!APIs.Captcha.verifyCaptcha())
+        {
+            return;
+        }
 
         Database.con.setAutoCommit(false);
 
@@ -936,6 +973,11 @@ public class CrimeMngrQueries
     {
         String CType=v.readAlphaString("Enter Updating Case Type: ");
 
+        if (!APIs.Captcha.verifyCaptcha())
+        {
+            return;
+        }
+
         Database.con.setAutoCommit(false);
 
         String UpdateCType="update case_details set CaseType=? where CaseID=?";
@@ -970,6 +1012,11 @@ public class CrimeMngrQueries
     {
         String CWeapon=v.readAlphaString("Enter Updating Crime Weapon: ");
 
+        if (!APIs.Captcha.verifyCaptcha())
+        {
+            return;
+        }
+
         Database.con.setAutoCommit(false);
 
         String UpdateCWeapon="update case_details set CrimeWeapon=? where CaseID=?";
@@ -995,6 +1042,11 @@ public class CrimeMngrQueries
     void UpdateSuspect(String c_id) throws Exception
     {
         String SName=v.readAlphaString("Enter Updating Suspect Name: ");
+
+        if (!APIs.Captcha.verifyCaptcha())
+        {
+            return;
+        }
 
         Database.con.setAutoCommit(false);
 
@@ -1038,6 +1090,11 @@ public class CrimeMngrQueries
     {
         String VName=v.readAlphaString("Enter Updating Victim Name: ");
 
+        if (!APIs.Captcha.verifyCaptcha())
+        {
+            return;
+        }
+
         Database.con.setAutoCommit(false);
 
         String UpdateVictim="update case_details set VictimName=? where CaseID=?";
@@ -1064,6 +1121,11 @@ public class CrimeMngrQueries
     {
         String CDesc=v.readAlphaString("Enter Updating Case Description: ");
 
+        if (!APIs.Captcha.verifyCaptcha())
+        {
+            return;
+        }
+
         Database.con.setAutoCommit(false);
 
         String UpdateCDesc="update case_details set CrimeDetails=? where CaseID=?";
@@ -1089,6 +1151,11 @@ public class CrimeMngrQueries
     void UpdateStatus(String c_id) throws Exception
     {
         String CStatus=v.readAlphaString("Enter Updating Case Status: ");
+
+        if (!APIs.Captcha.verifyCaptcha())
+        {
+            return;
+        }
 
         Database.con.setAutoCommit(false);
 
@@ -1151,11 +1218,10 @@ public class CrimeMngrQueries
             return;
         }
 
-        if(!(Login_SignUpPage.LoggedUserRole.equalsIgnoreCase("Admin") ||
-                Login_SignUpPage.LoggedUserRole.equalsIgnoreCase("Officer")))
+        if(!(Login_SignUpPage.getLoggedUserRole().equalsIgnoreCase("Admin") ||
+                Login_SignUpPage.getLoggedUserRole().equalsIgnoreCase("Officer")))
         {
-            System.err.print("[WARNING] Only Directory of Police Officers Members can Assign Case....");
-            return;
+            throw new APIs.AuthorizationException("Only Directory of Police Officers Members can Assign Case....");
         }
 
         System.out.print("Next Pending Case to Assign: ");
@@ -1172,36 +1238,49 @@ public class CrimeMngrQueries
             // Fetch CaseType to determine recommended department
             String recDept = "";
             String getCaseType = "select CaseType from case_details where CaseID=?";
-            try (PreparedStatement qct = Database.getConnection().prepareStatement(getCaseType)) {
+
+            try (PreparedStatement qct = Database.getConnection().prepareStatement(getCaseType))
+            {
                 qct.setString(1, case_id);
-                try (ResultSet rsct = qct.executeQuery()) {
-                    if (rsct.next()) {
+
+                try (ResultSet rsct = qct.executeQuery())
+                {
+                    if (rsct.next())
+                    {
                         String caseType = rsct.getString("CaseType");
                         String ctLower = caseType.toLowerCase();
-                        if (ctLower.contains("cyber")) {
+                        if (ctLower.contains("cyber"))
+                        {
                             recDept = "Cyber Cell";
-                        } else if (ctLower.contains("robbery") || ctLower.contains("murder") || ctLower.contains("drug")) {
+                        }
+                        else if (ctLower.contains("robbery") || ctLower.contains("murder") || ctLower.contains("drug"))
+                        {
                             recDept = "Crime Branch";
-                        } else if (ctLower.contains("kidnap")) {
+                        }
+                        else if (ctLower.contains("kidnap"))
+                        {
                             recDept = "Women Cell";
-                        } else if (ctLower.contains("traffic")) {
+                        }
+                        else if (ctLower.contains("traffic"))
+                        {
                             recDept = "Traffic";
                         }
                     }
                 }
             }
 
-            System.out.println("\nRecommended Department for this Crime: " + (recDept.isEmpty() ? "Any" : recDept));
+            System.out.println("Recommended Department for this Crime: " + (recDept.isEmpty() ? "Any" : recDept));
 
             // Query available officers sorted by recommended department first
             String AvailOffQuery = "select OfficerID, Name, Department, StationID, OfficerStatus from officer_details " +
                                    "where AssignedCase is null or AssignedCase = '' or lower(CaseStatus) = 'solved' " +
                                    "order by case when Department = ? then 0 else 1 end, Department, Name";
+
             PreparedStatement QAvail = Database.getConnection().prepareStatement(AvailOffQuery);
             QAvail.setString(1, recDept);
             ResultSet av_rs = QAvail.executeQuery();
 
-            System.out.println("\nAvailable Officers for Assignment (Recommended Department Listed First):");
+            System.out.println("Available Officers for Assignment (Recommended Department Listed First):");
             System.out.println("+------------+----------------------+------------------+------------+-----------------+");
             System.out.printf("| %-10s | %-20s | %-16s | %-10s | %-15s |\n", "Officer ID", "Name", "Department", "Station ID", "Officer Status");
             System.out.println("+------------+----------------------+------------------+------------+-----------------+");
@@ -1218,11 +1297,12 @@ public class CrimeMngrQueries
                     av_rs.getString("OfficerStatus") != null ? av_rs.getString("OfficerStatus") : "N/A"
                 );
             }
+
             if (!hasAvail)
             {
-                System.out.println("|                      No available officers found.                           |");
+                System.out.println("|                        No available officers found....                            |");
             }
-            System.out.println("+------------+----------------------+------------------+------------+-----------------+\n");
+            System.out.println("+------------+----------------------+------------------+------------+-----------------+");
             av_rs.close();
             QAvail.close();
 

@@ -18,15 +18,14 @@ package Quries;
 import DataBase.DataFound;
 import DataBase.Database;
 import DataBase.Validation;
-import DataStructure.IOFiles;
 import DataStructure.CustomDoublyLinkList;
+import DataStructure.IOFiles;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.Scanner;
 
-public class DIGQueries
+public class DGPQueries
 {
     Database db = new Database();
     Scanner sc = new Scanner(System.in);
@@ -130,6 +129,11 @@ public class DIGQueries
             {
                 OffSLoop=true;
             }
+        }
+
+        if (!APIs.Captcha.verifyCaptcha())
+        {
+            return;
         }
 
         Database.con.setAutoCommit(false);
@@ -563,6 +567,11 @@ public class DIGQueries
         System.out.print("Enter Updating Rank: ");
         String URank=sc.next();
 
+        if (!APIs.Captcha.verifyCaptcha())
+        {
+            return;
+        }
+
         String Update_Rank="update officer_details set Rank=? where OfficerID=?";
         PreparedStatement QRank= Database.getConnection().prepareStatement(Update_Rank);
         QRank.setString(1,URank);
@@ -585,6 +594,11 @@ public class DIGQueries
     {
         System.out.print("Enter Updating Station ID: ");
         String UStationID = sc.next();
+
+        if (!APIs.Captcha.verifyCaptcha())
+        {
+            return;
+        }
 
         Database.con.setAutoCommit(false);
 
@@ -626,6 +640,11 @@ public class DIGQueries
             {
                 OffSLoop=true;
             }
+        }
+
+        if (!APIs.Captcha.verifyCaptcha())
+        {
+            return;
         }
 
         Database.con.setAutoCommit(false);
@@ -670,6 +689,11 @@ public class DIGQueries
             }
         }
 
+        if (!APIs.Captcha.verifyCaptcha())
+        {
+            return;
+        }
+
         Database.con.setAutoCommit(false);
 
         String Update_CaseStatus = "update officer_details set CaseStatus=? where OfficerID=?";
@@ -712,6 +736,11 @@ public class DIGQueries
     {
         String UAssignedCase =v.readNonEmptyString("Enter Updating Assigned Case ID: ");
 
+        if (!APIs.Captcha.verifyCaptcha())
+        {
+            return;
+        }
+
         Database.con.setAutoCommit(false);
 
         String Update_AssignedCase = "update officer_details set AssignedCase=? where OfficerID=?";
@@ -747,6 +776,44 @@ public class DIGQueries
             QUAC.cancel();
             QOidCaD.cancel();
             QOidCriD.cancel();
+        }
+    }
+
+    public void DatabaseUpdatesActivity() throws Exception
+    {
+        DataStructure.DataStructure.ActivityLog.push("Viewed Database Updates Activity Log.");
+
+        // Simple SQL query to fetch all activity logs ordered by LogID desc (latest first)
+        String sql = "SELECT Time, UserID, Role, Activity, ActivityEndTime, ActivityDuration FROM ActivityLog ORDER BY LogID DESC";
+        
+        try (PreparedStatement ps = Database.getConnection().prepareStatement(sql);
+             ResultSet rs = ps.executeQuery())
+        {
+            boolean hasLogs = false;
+            while (rs.next())
+            {
+                hasLogs = true;
+                java.sql.Timestamp time = rs.getTimestamp("Time");
+                String userId = rs.getString("UserID");
+                String role = rs.getString("Role");
+                String activity = rs.getString("Activity");
+                java.sql.Timestamp endTime = rs.getTimestamp("ActivityEndTime");
+                String duration = rs.getString("ActivityDuration");
+
+                String timeStr = time != null ? time.toString() : "N/A";
+                String endTimeStr = endTime != null ? endTime.toString() : "N/A";
+
+                System.out.printf("[%s] %s - %s | %s | [%s] | %s\n",
+                        timeStr, userId, role, activity, endTimeStr, duration);
+            }
+            if (!hasLogs)
+            {
+                System.out.println("[INFO] No activity logs found in system.");
+            }
+        }
+        catch (Exception e)
+        {
+            System.err.println("[WARNING] Failed to load database updates activity: " + e.getMessage());
         }
     }
 }

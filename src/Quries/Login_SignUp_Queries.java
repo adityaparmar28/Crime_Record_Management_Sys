@@ -33,6 +33,11 @@ public class Login_SignUp_Queries
 
     public boolean SignUpQuery(String name,String email,String mobile,String passwd,String dob,String userID) throws Exception
     {
+        if (!APIs.Captcha.verifyCaptcha()) {
+            System.err.println("[FAILED] CAPTCHA verification failed. Signing up cancelled.");
+            return false;
+        }
+
         String SignUp = "INSERT INTO users (UsersName,EmailID,MobileNo,Password,DOB,UserID,Role) VALUES (?,?,?,?,?,?,?)";
 
         PreparedStatement QSU = Database.getConnection().prepareStatement(SignUp);
@@ -51,7 +56,7 @@ public class Login_SignUp_Queries
         if(run>0)
         {
             System.out.println("[UPDATED] User SignedUp Successfully....");
-            Login_SignUpPage.lastActionTime = System.currentTimeMillis();
+            APIs.TimeStamp.resetTimer();
             DataStructure.DataStructure.ActivityLog.push("Signed up new user: " + userID);
             return true;
         }
@@ -72,11 +77,11 @@ public class Login_SignUp_Queries
 
         if(rs.next())
         {
-            Login_SignUpPage.LoggedUserID=uId;
-            Login_SignUpPage.LoggedUserRole=rs.getString("Role");
-            Login_SignUpPage.lastActionTime = System.currentTimeMillis();
+            Login_SignUpPage.setLoggedUserID(uId);
+            Login_SignUpPage.setLoggedUserRole(rs.getString("Role"));
+            APIs.TimeStamp.resetTimer();
 
-            DataStructure.DataStructure.ActivityLog.push("Logged in user: " + uId + " (" + Login_SignUpPage.LoggedUserRole + ")");
+            DataStructure.DataStructure.ActivityLog.push("Logged in user: " + uId + " (" + Login_SignUpPage.getLoggedUserRole() + ")");
             rs.close();
             Qlogin.close();
             return true;
@@ -105,7 +110,12 @@ public class Login_SignUp_Queries
             QFPass.setString(2, uId);
             QFPass.setString(3, uId);
 
-            /**Yaha OTP Gen Thread bolana pending hai....woh otp match hoga toh hi execute hoga else no....**/
+            if (!APIs.OTP.sendAndVerifyOTP())
+            {
+                System.out.println("[FAILED] Verification failed. Password update cancelled.");
+                QFPass.close();
+                return;
+            }
 
             int run = QFPass.executeUpdate();
 

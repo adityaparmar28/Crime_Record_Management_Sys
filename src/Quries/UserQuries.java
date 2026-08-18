@@ -36,11 +36,17 @@ public class UserQuries
 
     public void Profile() throws Exception
     {
+        if (!APIs.OTP.sendAndVerifyOTP())
+        {
+            System.err.println("[FAILED] Verification failed....Access to profile denied....");
+            return;
+        }
+
         String Profile = "SELECT UsersName,UserID,Role,EmailID,MobileNo,DOB FROM users WHERE UserID=?";
 
         PreparedStatement QPro = Database.getConnection().prepareStatement(Profile);
 
-        QPro.setString(1,Login_SignUpPage.LoggedUserID);
+        QPro.setString(1,Login_SignUpPage.getLoggedUserID());
 
         ResultSet rs=QPro.executeQuery();
 
@@ -57,7 +63,7 @@ public class UserQuries
         }
         else
         {
-            System.out.println("User not found.");
+            System.out.println("[INFO] User not found....");
         }
 
         rs.close();
@@ -66,12 +72,11 @@ public class UserQuries
 
     public void UpdateProfile(String LoggedId) throws Exception
     {
-        System.out.println("Select Field");
-
-        System.out.println("1.Name");
-        System.out.println("2.Email");
-        System.out.println("3.Mobile");
-
+        System.out.println("| 1.Name");
+        System.out.println("| 2.Email");
+        System.out.println("| 3.Mobile");
+        System.out.println("-------------------");
+        System.out.println("| Select Field: ");
         int ch=sc.nextInt();
 
         String column="";
@@ -79,20 +84,28 @@ public class UserQuries
         switch(ch)
         {
             case 1:
-                column="UsersName";
+            {
+                column = "UsersName";
                 break;
+            }
 
             case 2:
-                column="EmailID";
+            {
+                column = "EmailID";
                 break;
+            }
 
             case 3:
-                column="MobileNo";
+            {
+                column = "MobileNo";
                 break;
+            }
 
             default:
-                System.out.println("Invalid Choice");
+            {
+                System.err.println("[INVALID] Invalid Choice....");
                 return;
+            }
         }
 
         System.out.print("Enter New Value : ");
@@ -106,15 +119,22 @@ public class UserQuries
         ps.setObject(1,value);
         ps.setString(2,LoggedId);
 
+        if (!APIs.OTP.sendAndVerifyOTP())
+        {
+            System.err.println("[FAILED] Verification failed....Profile update cancelled....");
+            ps.close();
+            return;
+        }
+
         int run=ps.executeUpdate();
 
         if(run>0)
         {
-            System.out.println("Profile Updated Successfully.");
+            System.out.println("[UPDATED] Profile Updated Successfully....");
             DataStructure.DataStructure.ActivityLog.push("Updated profile field '" + column + "' for user: " + LoggedId);
         }
         else
-            System.out.println("Profile Update Failed.");
+            System.err.println("[ERROR] Profile Update Failed....");
 
         ps.close();
     }

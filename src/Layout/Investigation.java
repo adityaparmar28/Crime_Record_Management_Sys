@@ -20,11 +20,10 @@ import Quries.IAQueries;
 
 import java.util.Scanner;
 
-public class Investigation
+public class Investigation extends IAQueries
 {
     Scanner sc=new Scanner(System.in);
-    DIG dig=new DIG();
-    IAQueries IAQ=new IAQueries();
+    DGP dgp=new DGP();
     Login_SignUpPage LSP=new Login_SignUpPage();
 
     public void Investigation_Menu() throws Exception
@@ -43,33 +42,40 @@ public class Investigation
             System.out.print("| Enter Your Choice: ");
             int invMenu_ch = sc.nextInt();
 
-            switch (invMenu_ch)
+            try
             {
-                case 1:
+                switch (invMenu_ch)
                 {
-                    // View Pending Cases functionality
-                    ViewPendingCases();
-                    break;
-                }
+                    case 1:
+                    {
+                        // View Pending Cases functionality
+                        ViewPendingCases();
+                        break;
+                    }
 
-                case 2:
-                {
-                    // Update Investigation Status functionality
-                    UpdateInvestigationStatus();
-                    break;
-                }
+                    case 2:
+                    {
+                        // Update Investigation Status functionality
+                        UpdateInvestigationStatus();
+                        break;
+                    }
 
-                case 3:
-                {
-                    // Home Page
-                    isIML=true;
-                    return;
-                }
+                    case 3:
+                    {
+                        // Home Page
+                        isIML=true;
+                        return;
+                    }
 
-                default:
-                {
-                    System.err.println("[ERROR] Invalid Choice....Enter a valid choice....");
+                    default:
+                    {
+                        System.err.println("[ERROR] Invalid Choice....Enter a valid choice....");
+                    }
                 }
+            }
+            catch (APIs.AuthorizationException e)
+            {
+                System.err.println("[WARNING] " + e.getMessage());
             }
         }
     }
@@ -77,12 +83,12 @@ public class Investigation
     void ViewPendingCases() throws Exception
     {
         // Implementation for viewing pending unsolved cases....
-        IAQ.PendingCases();
+        PendingCases();
     }
 
     void UpdateInvestigationStatus() throws Exception
     {
-        if (Login_SignUpPage.LoggedUserID.equals(""))
+        if (Login_SignUpPage.getLoggedUserID().equals(""))
         {
             System.out.println("[INFO] You must be logged in to update investigation status....Log in first....");
 
@@ -93,13 +99,12 @@ public class Investigation
             }
         }
 
-        if (!(Login_SignUpPage.LoggedUserRole.equalsIgnoreCase("Admin") ||
-                Login_SignUpPage.LoggedUserRole.equalsIgnoreCase("Officer")))
+        if (!(Login_SignUpPage.getLoggedUserRole().equalsIgnoreCase("Admin") ||
+                Login_SignUpPage.getLoggedUserRole().equalsIgnoreCase("Officer")))
         {
-            System.err.println("[WARNING] Only Directory of Police Officers (Admin/Officer) can update investigation status....");
-            return;
+            throw new APIs.AuthorizationException("Only Directory of Police Officers (Admin/Officer) can update investigation status....");
         }
 
-        IAQ.UpdateInvesting();
+        UpdateInvesting();
     }
 }

@@ -20,12 +20,11 @@ import Quries.UserQuries;
 
 import java.util.Scanner;
 
-public class User
+public class User extends UserQuries
 {
     Scanner sc=new Scanner(System.in);
     Login_SignUp_Queries LSQ=new Login_SignUp_Queries();
     Login_SignUpPage LS=new Login_SignUpPage();
-    UserQuries UQ=new UserQuries();
 
     public void userMenu() throws Exception
     {
@@ -36,15 +35,13 @@ public class User
             System.out.println("+----------------------------------------------------------------------+");
             System.out.println("|                            USER PROFILE                              |");
             System.out.println("+----------------------------------------------------------------------+");
-            System.out.println();
-            System.out.println("1. View Profile");
-            System.out.println("2. Update Profile");
-            System.out.println("3. Change Password");
-            System.out.println("4. User Activity Log");
-            System.out.println("5. Home Page");
-            System.out.println();
+            System.out.println("| 1. View Profile");
+            System.out.println("| 2. Update Profile");
+            System.out.println("| 3. Change Password");
+            System.out.println("| 4. User Activity Log");
+            System.out.println("| 5. Home Page");
             System.out.println("+----------------------------------------------------------------------+");
-            System.out.print("Enter Your Choice: ");
+            System.out.print("| Enter Your Choice: ");
             int user_ch = sc.nextInt();
 
             switch (user_ch)
@@ -96,24 +93,24 @@ public class User
     {
         //Show last logged in user data throgh query....
         //Aani mate user login na log alag thi create kari emathi last login user details fetch karishu....
-        UQ.Profile();
+        Profile();
     }
 
     void updateProfile() throws Exception
     {
-        UQ.UpdateProfile(Login_SignUpPage.LoggedUserID);
+        UpdateProfile(Login_SignUpPage.getLoggedUserID());
     }
 
     void changePassword() throws Exception
     {
         //Change user password throgh query....
         //OPT ya phir Captch fetch karaishu....
-        UQ.ChangePassword();
+        ChangePassword();
     }
 
     void userActivityLog() throws Exception
     {
-        System.out.println("\n+-----------------| USER ACTIVITY LOG |-----------------+");
+        System.out.println("+-----------------| USER ACTIVITY LOG |-----------------+");
         DataStructure.DataStructure.ActivityLog.display();
         System.out.println("+--------------------------------------------------------+");
     }

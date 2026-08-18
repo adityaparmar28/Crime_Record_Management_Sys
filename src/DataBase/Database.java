@@ -45,17 +45,21 @@ public class Database extends Thread
 
     Scanner sc=new Scanner(System.in);
 
-    public static Connection getConnection() throws SQLException
+    public static Connection getConnection() throws SQLException, APIs.DBConnectionException
     {
         if (!driverLoaded)
         {
-            throw new SQLException("JDBC Driver was not loaded.");
+            throw new APIs.DBConnectionException("JDBC Driver was not loaded.");
         }
 
         // Return active connection or create a new one if closed
         if (con == null || con.isClosed())
         {
-            con = DriverManager.getConnection(URL, USER, PASSWORD);
+            try {
+                con = DriverManager.getConnection(URL, USER, PASSWORD);
+            } catch (SQLException e) {
+                throw new APIs.DBConnectionException("Could not connect to database: " + e.getMessage());
+            }
         }
         return con;
     }
@@ -67,7 +71,7 @@ public class Database extends Thread
             Connection conn = getConnection();
             return conn != null && !conn.isClosed();
         }
-        catch (SQLException e)
+        catch (Exception e)
         {
             return false;
         }
@@ -138,11 +142,7 @@ public class Database extends Thread
     @Override
     public void run()
     {
-        while(true)
-        {
-            Status();
-            DBSync();
-        }
+        Status();
     }
 
 
@@ -152,7 +152,7 @@ public class Database extends Thread
         {
             try
             {
-                Thread.sleep(60000); // Check every 60 seconds
+                Thread.sleep(10000); // Check every 10 seconds
                 if (testConnection())
                 {
                     if (!conStatus)
@@ -345,7 +345,7 @@ public class Database extends Thread
         }
     }
 
-    public boolean tableExists(String tableName) throws SQLException
+    public boolean tableExists(String tableName) throws Exception
     {
         Connection con = getConnection();
 

@@ -18,9 +18,7 @@ package DataStructure;
 import DataBase.Database;
 import Profile.Login_SignUpPage;
 
-import java.io.BufferedWriter;
 import java.io.*;
-import java.io.FileWriter;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
@@ -159,7 +157,7 @@ public class IOFiles
 
         String UserD="SELECT UsersName,MobileNo,EmailID from users where UserID=?";
         PreparedStatement QUDetails=Database.getConnection().prepareStatement(UserD);
-        QUDetails.setString(1, Login_SignUpPage.LoggedUserID);
+        QUDetails.setString(1, Login_SignUpPage.getLoggedUserID());
         ResultSet UserRs= QUDetails.executeQuery();
         UserRs.next(); // Advance cursor to first row of results
 
@@ -228,6 +226,11 @@ public class IOFiles
         if (!f.exists() || !f.isFile())
         {
             System.err.println("[ERROR] File does not exist at path: " + Path);
+            return;
+        }
+
+        if (!APIs.Captcha.verifyCaptcha())
+        {
             return;
         }
 

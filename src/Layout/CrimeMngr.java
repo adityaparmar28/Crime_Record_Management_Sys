@@ -20,10 +20,9 @@ import Quries.CrimeMngrQueries;
 
 import java.util.Scanner;
 
-public class CrimeMngr
+public class CrimeMngr extends CrimeMngrQueries
 {
     Scanner sc=new Scanner(System.in);
-    CrimeMngrQueries CMQ=new CrimeMngrQueries();
     Login_SignUpPage LSP=new Login_SignUpPage();
 
     public void CrimeManagement_Menu() throws Exception
@@ -45,67 +44,74 @@ public class CrimeMngr
             System.out.print("| Enter Your Choice: ");
             int cmMenu_ch = sc.nextInt();
 
-            switch (cmMenu_ch)
+            try
             {
-                case 1:
+                switch (cmMenu_ch)
                 {
-                    if(LSP.LoggedUserID!="")
+                    case 1:
                     {
-                        // File Crime Report....
-                        FIR();
-                    }
-                    else
-                    {
-                        if(LSP.userLogin())
+                        if(!Login_SignUpPage.getLoggedUserID().equals(""))
                         {
                             // File Crime Report....
                             FIR();
                         }
+                        else
+                        {
+                            if(LSP.userLogin())
+                            {
+                                // File Crime Report....
+                                FIR();
+                            }
 
+                        }
+                        break;
                     }
-                    break;
-                }
 
-                case 2:
-                {
-                    // Search Crime Report....
-                    SearchCases();
-                    break;
-                }
+                    case 2:
+                    {
+                        // Search Crime Report....
+                        SearchCases();
+                        break;
+                    }
 
-                case 3:
-                {
-                    // List of All Cases....
-                    ListAllCases();
-                    break;
-                }
+                    case 3:
+                    {
+                        // List of All Cases....
+                        ListAllCases();
+                        break;
+                    }
 
-                case 4:
-                {
-                    // Update Case Details....
-                    UpdateCaseDetails();
-                    break;
-                }
+                    case 4:
+                    {
+                        // Update Case Details....
+                        UpdateCaseDetails();
+                        break;
+                    }
 
-                case 5:
-                {
-                    // Crime Ratio....
-                    CrimeRatio();
-                    break;
-                }
+                    case 5:
+                    {
+                        // Crime Ratio....
+                        CrimeRatio();
+                        break;
+                    }
 
-                case 6:
-                {
-                    // Home Page....
-                    isCMML=true;
-                    break;
-                }
+                    case 6:
+                    {
+                        // Home Page....
+                        isCMML=true;
+                        break;
+                    }
 
-                default:
-                {
-                    System.err.println("[ERROR] Invalid choice....Enter a valid choice....");
-                    break;
+                    default:
+                    {
+                        System.err.println("[ERROR] Invalid choice....Enter a valid choice....");
+                        break;
+                    }
                 }
+            }
+            catch (APIs.AuthorizationException e)
+            {
+                System.err.println("[WARNING] " + e.getMessage());
             }
         }
     }
@@ -113,13 +119,13 @@ public class CrimeMngr
     void FIR() throws Exception
     {
         //FIR through Query....
-        CMQ.FileFIRQ();
+        FileFIRQ();
     }
 
     void SearchCases() throws Exception
     {
         // Search Cases through Query....
-        CMQ.SearchCRQ();
+        SearchCRQ();
     }
 
     void ListAllCases() throws Exception
@@ -127,12 +133,12 @@ public class CrimeMngr
         // List All Cases through Query....
         //overview of cases should be displayed in a table format with caseID, caseTitle, caseStatus, and dateFiled.....
         //if user want to see full details of case then....user must have to log in in system....
-        CMQ.AllCasesQ();
+        AllCasesQ();
     }
 
     void UpdateCaseDetails() throws Exception
     {
-        if (Login_SignUpPage.LoggedUserID.equals(""))
+        if (Login_SignUpPage.getLoggedUserID().equals(""))
         {
             System.out.println("[INFO] You must be logged in to update case details....LogIn first....");
             if (!LSP.DGPLogin())
@@ -142,20 +148,20 @@ public class CrimeMngr
             }
         }
 
-        if(!(Login_SignUpPage.LoggedUserRole.equalsIgnoreCase("Admin") ||
-                Login_SignUpPage.LoggedUserRole.equalsIgnoreCase("Officer")))
+        if(!(Login_SignUpPage.getLoggedUserRole().equalsIgnoreCase("Admin") ||
+                Login_SignUpPage.getLoggedUserRole().equalsIgnoreCase("Officer")))
         {
-            System.err.println("[WARNING] Only Directory of Police Officers Members (Admin/Officer) can Update Case Details....");
+            throw new APIs.AuthorizationException("Only Directory of Police Officers Members (Admin/Officer) can Update Case Details....");
         }
         else
         {
-            CMQ.UpdateCaseData();
+            UpdateCaseData();
         }
     }
 
-    void CrimeRatio() throws Exception
+    public void CrimeRatio() throws Exception
     {
         // Crime Ratio through Query....
-        CMQ.CrimeRatio();
+        super.CrimeRatio();
     }
 }

@@ -45,10 +45,25 @@ public class Login_SignUpPage
     String dobS; //Convert to String
     String m_noS; //Convert to String
     public static String Role="Citizen";
-    public static String LoggedUserID="";
-    public static String LoggedUserRole="";
-    public static long lastActionTime = System.currentTimeMillis();
+    private static String LoggedUserID="";
+    private static String LoggedUserRole="";
     //public static int atp = 2;
+
+    public static String getLoggedUserID() {
+        return LoggedUserID;
+    }
+
+    public static void setLoggedUserID(String id) {
+        LoggedUserID = id;
+    }
+
+    public static String getLoggedUserRole() {
+        return LoggedUserRole;
+    }
+
+    public static void setLoggedUserRole(String role) {
+        LoggedUserRole = role;
+    }
 
     public void SignUp() throws Exception
     {
@@ -363,6 +378,27 @@ public class Login_SignUpPage
             {
                 System.out.println("------| USER LOGIN FAILED |------");
                 System.out.println("Attempt left: "+atp);
+
+                if (atp == 1)
+                {
+                    Thread forgotThread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                System.out.print("Did you forget your password? (Y/N): ");
+                                String ans = sc.next();
+                                if (ans.equalsIgnoreCase("Y")) {
+                                    LSQ.ForgetPassword();
+                                }
+                            } catch (Exception e) {
+                                System.err.println("[ERROR] Forgot password thread error: " + e.getMessage());
+                            }
+                        }
+                    });
+                    forgotThread.start();
+                    forgotThread.join();
+                }
+
                 System.out.println("Do you want to SignUp? (Y/N)");
                 char ask0=sc.next().charAt(0);
                 if(ask0=='Y' || ask0=='y')
@@ -386,7 +422,7 @@ public class Login_SignUpPage
 
     public boolean userLogin() throws Exception
     {
-        atp = 2; // Reset attempts for new login request
+        atp = 3; // Reset attempts for new login request (3 attempts total)
         return userLoginInternal();
     }
 
@@ -411,7 +447,7 @@ public class Login_SignUpPage
 
     public boolean DGPLogin() throws Exception
     {
-        atp = 2; // Reset attempts for new login request
+        atp = 3; // Reset attempts for new login request (3 attempts total)
         return DGPLoginInternal();
     }
 
