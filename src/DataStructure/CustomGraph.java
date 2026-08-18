@@ -17,13 +17,13 @@ package DataStructure;
 
 public class CustomGraph
 {
-    public class NeighborNode
+    public class LinkNode
     {
         public String criminalName;
         public String caseID;
-        public NeighborNode next;
+        public LinkNode next;
 
-        public NeighborNode(String name, String caseID)
+        public LinkNode(String name, String caseID)
         {
             this.criminalName = name;
             this.caseID = caseID;
@@ -34,7 +34,7 @@ public class CustomGraph
     public class CriminalNode
     {
         public String criminalName;
-        public NeighborNode neighborsHead;
+        public LinkNode neighborsHead;
         public CriminalNode next;
 
         public CriminalNode(String name)
@@ -49,7 +49,10 @@ public class CustomGraph
 
     public void addCriminal(String name)
     {
-        if (findCriminal(name) != null) return;
+        if (findCriminal(name) != null)
+        {
+            return;
+        }
         CriminalNode newNode = new CriminalNode(name);
         newNode.next = head;
         head = newNode;
@@ -69,7 +72,7 @@ public class CustomGraph
         return null;
     }
 
-    public void addAccompliceEdge(String name1, String name2, String caseID)
+    public void connectCriminals(String name1, String name2, String caseID)
     {
         addCriminal(name1);
         addCriminal(name2);
@@ -78,12 +81,12 @@ public class CustomGraph
         CriminalNode node2 = findCriminal(name2);
 
         // Add node2 to node1's neighbors list
-        NeighborNode n1 = new NeighborNode(name2, caseID);
+        LinkNode n1 = new LinkNode(name2, caseID);
         n1.next = node1.neighborsHead;
         node1.neighborsHead = n1;
 
         // Add node1 to node2's neighbors list
-        NeighborNode n2 = new NeighborNode(name1, caseID);
+        LinkNode n2 = new LinkNode(name1, caseID);
         n2.next = node2.neighborsHead;
         node2.neighborsHead = n2;
     }
@@ -101,7 +104,7 @@ public class CustomGraph
         while (temp != null)
         {
             System.out.print("Criminal: " + temp.criminalName + " -> ");
-            NeighborNode neighbor = temp.neighborsHead;
+            LinkNode neighbor = temp.neighborsHead;
             if (neighbor == null)
             {
                 System.out.println("No known accomplices.");

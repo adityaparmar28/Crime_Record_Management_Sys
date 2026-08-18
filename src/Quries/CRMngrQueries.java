@@ -270,16 +270,29 @@ public class CRMngrQueries
             Database.con.commit();
             DataStructure.ActivityLog.push("Added criminal record with ID: " + C_Id);
             addCR.close();
-            if (upCD != null) upCD.close();
-            if (upCP != null) upCP.close();
+            if (upCD != null)
+            {
+                upCD.close();
+            }
+
+            if (upCP != null)
+            {
+                upCP.close();
+            }
         }
         else
         {
             System.out.println("[FAILED] Criminal Data Couldn't be Added...");
             Database.con.rollback();
             addCR.close();
-            if (upCD != null) upCD.close();
-            if (upCP != null) upCP.close();
+            if (upCD != null)
+            {
+                upCD.close();
+            }
+            if (upCP != null)
+            {
+                upCP.close();
+            }
         }
     }
 
@@ -474,14 +487,16 @@ public class CRMngrQueries
                 default:
                 {
                     System.out.println("[ERROR] Invalid number format. Please enter a valid choice....");
+                    return;
                 }
             }
         }
         catch (Exception e)
         {
             System.err.println("[ERROR] Invalid Choice....Enter a valid choice....");
+            return;
         }
-        DataStructure.ActivityLog.push("Updated criminal record linked to Case ID: " + C_CaseID);
+        //DataStructure.ActivityLog.push("Updated criminal record linked to Case ID: " + C_CaseID);
     }
 
     void UpdateIOffID(String oid, String CaseID) throws Exception
@@ -514,6 +529,7 @@ public class CRMngrQueries
         if (updateCIO > 0 && updateIO_cid > 0 && upOidCase>0)
         {
             System.out.println("[UPDATED] Criminal details updated successfully...");
+            DataStructure.ActivityLog.push("Updated Investing Officer ID for Case ID: " + CaseID + " to: " + oid);
             Database.con.commit();
             QUCrIOID.close();
             QUOfCID.close();
@@ -559,6 +575,7 @@ public class CRMngrQueries
         if (updateCS > 0 && updateCD_CS > 0 && updateOD_CS>0)
         {
             System.out.println("[UPDATED] Case status updated successfully...");
+            DataStructure.ActivityLog.push("Updated Case Status for Case ID: " + CaseID + " to: " + Status);
             Database.con.commit();
             QUCS.close();
             QUCD_CS.close();
@@ -592,6 +609,7 @@ public class CRMngrQueries
         if (updateCS > 0)
         {
             System.out.println("[UPDATED] Criminal status updated successfully...");
+            DataStructure.ActivityLog.push("Updated Criminal Status for Case ID: " + CaseID + " to: " + Status);
             Database.con.commit();
             QUCS.close();
         }
@@ -621,6 +639,7 @@ public class CRMngrQueries
         if (updateBD > 0)
         {
             System.out.println("[UPDATED] Bail date updated successfully...");
+            DataStructure.ActivityLog.push("Updated Bail Date for Case ID: " + CaseID + " to: " + BailDate);
             Database.con.commit();
             QUBD.close();
         }
@@ -650,6 +669,7 @@ public class CRMngrQueries
         if (updateRD > 0)
         {
             System.out.println("[UPDATED] Release date updated successfully...");
+            DataStructure.ActivityLog.push("Updated Release Date for Case ID: " + CaseID + " to: " + ReleaseDate);
             Database.con.commit();
             QURD.close();
         }
@@ -781,7 +801,7 @@ public class CRMngrQueries
         {
             System.err.println("[INVALID] Invalid Choice...");
         }
-        DataStructure.ActivityLog.push("Performed criminal record search.");
+        //DataStructure.ActivityLog.push("Performed criminal record search.");
     }
 
     void KSCriRec() throws Exception
@@ -956,6 +976,7 @@ public class CRMngrQueries
         System.out.println("[INFO] Name,Gender,Age,CrimeType,PunishmentType are valid....");
         System.out.print("Enter Details Related about that Criminal or Crime: ");
         String details=sc.next();
+
         DataStructure.ActivityLog.push("Performed matching criminal search for: " + details);
 
         String UnkSCriRec="select *, count(*) over() as TResults from criminal_details where Name like ? or CrimeType like ? or PunishmentType like ? or Gender like ? or Age like ?";
@@ -1069,13 +1090,16 @@ public class CRMngrQueries
     void AutocompleteSearch() throws Exception
     {
         CustomBinarySearchTree tree = new CustomBinarySearchTree();
+
         String selectNames = "select Name from criminal_details";
         PreparedStatement ps = Database.getConnection().prepareStatement(selectNames);
         ResultSet rs = ps.executeQuery();
+
         while (rs.next())
         {
             tree.Insert(rs.getString("Name"));
         }
+
         rs.close();
         ps.close();
 
@@ -1085,50 +1109,11 @@ public class CRMngrQueries
         DataStructure.ActivityLog.push("Performed autocomplete search for prefix: " + prefix);
     }
 
-    public void ShowCriminalAccompliceGraph() throws Exception
+    public void DisplayCriminalRelations() throws Exception
     {
-        CustomGraph graph = new CustomGraph();
-
-        String distinctCasesQuery = "select distinct CaseID from criminal_details where CaseID is not null and CaseID != ''";
-        PreparedStatement psCases = Database.getConnection().prepareStatement(distinctCasesQuery);
-        ResultSet rsCases = psCases.executeQuery();
-
-        while (rsCases.next())
-        {
-            String caseID = rsCases.getString("CaseID");
-            
-            String accomplicesQuery = "select Name from criminal_details where CaseID=?";
-            PreparedStatement psAcc = Database.getConnection().prepareStatement(accomplicesQuery);
-            psAcc.setString(1, caseID);
-            ResultSet rsAcc = psAcc.executeQuery();
-
-            java.util.ArrayList<String> names = new java.util.ArrayList<>();
-            while (rsAcc.next())
-            {
-                names.add(rsAcc.getString("Name"));
-            }
-            rsAcc.close();
-            psAcc.close();
-
-            if (names.size() > 1)
-            {
-                for (int i = 0; i < names.size(); i++)
-                {
-                    for (int j = i + 1; j < names.size(); j++)
-                    {
-                        graph.addAccompliceEdge(names.get(i), names.get(j), caseID);
-                    }
-                }
-            }
-            else if (names.size() == 1)
-            {
-                graph.addCriminal(names.get(0));
-            }
-        }
-        rsCases.close();
-        psCases.close();
-
+        CustomGraph graph = APIs.RelationAPI.buildGraph();
         graph.displayNetwork();
-        DataStructure.ActivityLog.push("Viewed criminal accomplice graph.");
+
+        DataStructure.ActivityLog.push("Viewed criminal graph.");
     }
 }

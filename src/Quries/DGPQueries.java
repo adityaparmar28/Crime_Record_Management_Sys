@@ -161,6 +161,7 @@ public class DGPQueries
         if(AOff>0)
         {
             System.out.println("[UPDATED] Officer added successfully....");
+            DataStructure.DataStructure.ActivityLog.push("Added new officer record for Officer ID: " + officerID);
             Database.con.commit();
             QAddOff.close();
         }
@@ -175,6 +176,7 @@ public class DGPQueries
 
     public void SearchOfficer() throws Exception
     {
+        //DataStructure.DataStructure.ActivityLog.push("Performed officer record search.");
         System.out.println("Do you Know Anything Perticular Details about Officer???(yes/no)");
         System.out.print(">>> ");
         char ans=sc.next().charAt(0);
@@ -206,6 +208,7 @@ public class DGPQueries
         System.out.print("Enter "+ColummName+" Details: ");
 
         Object Kdetails=OODQ.SQLDType2JDType(ColummName,TableName);
+        DataStructure.DataStructure.ActivityLog.push("Performed officer search by " + ColummName + ": " + Kdetails);
 
         String SearchOffRec="select *, count(*) over() as TResults from officer_details where "+ColummName+" like ?";
         PreparedStatement QSOR= Database.getConnection().prepareStatement(SearchOffRec);
@@ -319,6 +322,7 @@ public class DGPQueries
         System.out.println("Case Status: "+PerOffData_rs.getString("CaseStatus"));
         System.out.println("---------------------------------------------------------------------------");
         QPSOR.close();
+        DataStructure.DataStructure.ActivityLog.push("Viewed officer record for ID: " + offID);
     }
 
     void UnkSOffRec() throws Exception
@@ -326,9 +330,11 @@ public class DGPQueries
         char ans;
 
         System.out.println("[INFO] Name,Gender,Rank,Department,OfficerStatus are Valid....");
-        System.out.println("Enter Details Related about that Criminal or Crime: ");
+        System.out.println("Enter Details Related about that Officer: ");
         System.out.print(">>> ");
         String details=sc.next();
+
+        DataStructure.DataStructure.ActivityLog.push("Performed matching officer search for: " + details);
 
         String UnkSOffRec="select *, count(*) over() as TResults from officer_details where Name like ? or Rank like ? or Gender like ? or Department like ? or OfficerStatus like ?";
         PreparedStatement QUkSOR= Database.getConnection().prepareStatement(UnkSOffRec);
@@ -491,6 +497,7 @@ public class DGPQueries
             rs.close();
             fileSet.close();
             QAO.close();
+            DataStructure.DataStructure.ActivityLog.push("Viewed list of all police officers.");
         }
         else
         {
@@ -581,6 +588,7 @@ public class DGPQueries
         if(URankRes>0)
         {
             System.out.println("[UPDATED] Officer Rank Updated Successfully....");
+            DataStructure.DataStructure.ActivityLog.push("Updated Rank for Officer ID: " + OID + " to: " + URank);
             QRank.close();
         }
         else
@@ -611,6 +619,7 @@ public class DGPQueries
         if (USIDRes > 0)
         {
             System.out.println("[UPDATED] Officer Station ID Updated Successfully....");
+            DataStructure.DataStructure.ActivityLog.push("Updated Station ID for Officer ID: " + OID + " to: " + UStationID);
             Database.con.commit();
             QUSID.close();
         }
@@ -658,6 +667,7 @@ public class DGPQueries
         if (UOffSRes > 0)
         {
             System.out.println("[UPDATED] Officer Status Updated Successfully....");
+            DataStructure.DataStructure.ActivityLog.push("Updated Officer Status for Officer ID: " + OID + " to: " + UOfficerStatus);
             Database.con.commit();
             QUOffS.close();
         }
@@ -717,6 +727,7 @@ public class DGPQueries
         if (UCStatusRes > 0 && UCD_CSRes>0 && UCriD_CSRes>0)
         {
             System.out.println("[UPDATED] Case Status Updated Successfully....");
+            DataStructure.DataStructure.ActivityLog.push("Updated Case Status for Case ID linked to Officer ID: " + OID + " to: " + UCaseStatus);
             Database.con.commit();
             QUCS.close();
             QUCaD_CaS.close();
@@ -764,6 +775,7 @@ public class DGPQueries
         if (UACRes > 0 && UOIDRes>0 && UOIDRes2>0)
         {
             System.out.println("[UPDATED] Assigned Case Updated Successfully....");
+            DataStructure.DataStructure.ActivityLog.push("Assigned Case ID: " + UAssignedCase + " to Officer ID: " + OID);
             Database.con.commit();
             QUAC.close();
             QOidCaD.close();
@@ -808,7 +820,7 @@ public class DGPQueries
             }
             if (!hasLogs)
             {
-                System.out.println("[INFO] No activity logs found in system.");
+                System.out.println("[INFO] No activity logs found in system....");
             }
         }
         catch (Exception e)

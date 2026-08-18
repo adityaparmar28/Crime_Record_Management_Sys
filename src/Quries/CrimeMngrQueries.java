@@ -299,6 +299,7 @@ public class CrimeMngrQueries
         System.out.print("Enter " + ColummName + " Details: ");
 
         Object Kdetails = OODQ.SQLDType2JDType(ColummName, TableName);
+        DataStructure.ActivityLog.push("Performed case search by " + ColummName + ": " + Kdetails);
 
         String SearchCaseRec = "select *, count(*) over() as TResults from case_details where " + ColummName + " like ?";
 
@@ -456,6 +457,8 @@ public class CrimeMngrQueries
         System.out.println("[INFO] CaseName,CrimeLocation,CrimeWeapon,SuspectName,VictimName are Valid....");
         System.out.print("Enter Details Related about that Criminal or Crime: ");
         String details=sc.next();
+
+        DataStructure.ActivityLog.push("Performed matching criminal search for: " + details);
 
         String UnkSCaseRec="select *, count(*) over() as TResults from case_details where CaseName like ? or CrimeLocation like ? or CrimeWeapon like ? or SuspectName like ? or VictimName like ?";
 
@@ -790,7 +793,7 @@ public class CrimeMngrQueries
                 break;
             }
         }
-        DataStructure.ActivityLog.push("Updated case details for Case ID: " + CId);
+        //DataStructure.ActivityLog.push("Updated case details for Case ID: " + CId);
     }
 
     void UpdateCriID(String c_id) throws Exception
@@ -821,6 +824,7 @@ public class CrimeMngrQueries
         if (UCID>0 && UCIdData>0)
         {
             System.out.println("[UPDATED] Criminal ID updated successfully...");
+            DataStructure.ActivityLog.push("Updated Criminal ID for Case ID: " + c_id + " to: " + CriID);
             Database.con.commit();
             QUCriID.close();
             QUCriIdData.close();
@@ -954,6 +958,7 @@ public class CrimeMngrQueries
         if (UOID>0 && UOffCri>0 && UCIOff>0)
         {
             System.out.println("[UPDATED] Officer ID updated successfully...");
+            DataStructure.ActivityLog.push("Assigned Case ID: " + c_id + " to Officer ID: " + OffID);
             Database.con.commit();
             QUOffID.close();
             QUOffCriD.close();
@@ -995,6 +1000,7 @@ public class CrimeMngrQueries
         if (UCT>0 && UpCT>0)
         {
             System.out.println("[UPDATED] Case Type updated successfully...");
+            DataStructure.ActivityLog.push("Updated Case Type for Case ID: " + c_id + " to: " + CType);
             Database.con.commit();
             QUCType.close();
             QUpCType.close();
@@ -1028,6 +1034,7 @@ public class CrimeMngrQueries
         if (UCW>0)
         {
             System.out.println("[UPDATED] Crime Weapon updated successfully...");
+            DataStructure.ActivityLog.push("Updated Crime Weapon for Case ID: " + c_id + " to: " + CWeapon);
             Database.con.commit();
             QUCWeapon.close();
         }
@@ -1071,6 +1078,7 @@ public class CrimeMngrQueries
         if (USN>0 && UCriN>0 && UCriPicN>=0)
         {
             System.out.println("[UPDATED] Suspect Name updated successfully...");
+            DataStructure.ActivityLog.push("Updated Suspect Name for Case ID: " + c_id + " to: " + SName);
             Database.con.commit();
             QUSuspect.close();
             QUCriN.close();
@@ -1106,6 +1114,7 @@ public class CrimeMngrQueries
         if (UVN>0)
         {
             System.out.println("[UPDATED] Victim Name updated successfully...");
+            DataStructure.ActivityLog.push("Updated Victim Name for Case ID: " + c_id + " to: " + VName);
             Database.con.commit();
             QUVictim.close();
         }
@@ -1137,6 +1146,7 @@ public class CrimeMngrQueries
         if (UCD>0)
         {
             System.out.println("[UPDATED] Case Description updated successfully...");
+            DataStructure.ActivityLog.push("Updated Case Description for Case ID: " + c_id);
             Database.con.commit();
             QUCDesc.close();
         }
@@ -1180,6 +1190,7 @@ public class CrimeMngrQueries
         if (UCS>0 && UCSCri>0 && UCSOff>0)
         {
             System.out.println("[UPDATED] Case Status updated successfully...");
+            DataStructure.ActivityLog.push("Updated Case Status for Case ID: " + c_id + " to: " + CStatus);
             Database.con.commit();
             QUCStatus.close();
             QUCSOff.close();
@@ -1197,6 +1208,7 @@ public class CrimeMngrQueries
 
     public void CrimeRatio() throws Exception
     {
+        DataStructure.ActivityLog.push("Viewed Crime Ratio Report.");
         String CrimeRatioQuery="select CaseType, count(*) as TotalCases from case_details group by CaseType";
         PreparedStatement QCR= Database.getConnection().prepareStatement(CrimeRatioQuery);
         ResultSet CRrs=QCR.executeQuery();
@@ -1313,8 +1325,19 @@ public class CrimeMngrQueries
             if (ans=='Y'||ans=='y')
             {
                 UpdateOffID(case_id);
+                String assignedOffID = "";
+                String fetchOffQuery = "select OfficerID from case_details where CaseID=?";
+                try (PreparedStatement ps = Database.getConnection().prepareStatement(fetchOffQuery)) {
+                    ps.setString(1, case_id);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            assignedOffID = rs.getString("OfficerID");
+                        }
+                    }
+                }
                 UpdateCType(case_id);
                 PCS.Dequeue();
+                DataStructure.ActivityLog.push("Assigned pending Case ID: " + case_id + " to Officer ID: " + assignedOffID);
             }
             else if (ans=='N'||ans=='n')
             {

@@ -42,7 +42,7 @@ public class CRMngr extends CRMngrQueries
                 System.out.println("| 2. Search Criminal");
                 System.out.println("| 3. List of All Criminals");
                 System.out.println("| 4. Update Criminal Record");
-                System.out.println("| 5. Show Criminal Accomplice Graph");
+                System.out.println("| 5. Show Criminal by Graph");
                 System.out.println("| 6. Home Page");
                 System.out.println("+----------------------------------------------------------------------+");
                 System.out.print("| Enter Your Choice: ");
@@ -126,7 +126,7 @@ public class CRMngr extends CRMngrQueries
                     case 5:
                     {
                         // Show Accomplice Graph
-                        showAccompliceGraph();
+                        showGraph();
                         break;
                     }
 
@@ -178,8 +178,8 @@ public class CRMngr extends CRMngrQueries
         UpdateCriminalRQuery();
     }
 
-    void showAccompliceGraph() throws Exception
+    void showGraph() throws Exception
     {
-        ShowCriminalAccompliceGraph();
+        DisplayCriminalRelations();
     }
 }

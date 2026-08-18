@@ -214,7 +214,7 @@ public class IAQueries
         {
             System.out.println("[UPDATED] Investigation details updated successfully...");
             Database.con.commit();
-            DataStructure.ActivityLog.push("Updated investigation status for Case ID: " + caseID);
+            DataStructure.ActivityLog.push("Updated investigation of Case ID: " + caseID);
         }
         else
         {
@@ -222,9 +222,21 @@ public class IAQueries
             Database.con.rollback();
         }
 
-        if (QUIn != null) QUIn.close();
-        if (QUInCri != null) QUInCri.close();
-        if (QUInOff != null) QUInOff.close();
-        if (QUInPic != null) QUInPic.close();
+        if (QUIn != null)
+        {
+            QUIn.close();
+        }
+        if (QUInCri != null)
+        {
+            QUInCri.close();
+        }
+        if (QUInOff != null)
+        {
+            QUInOff.close();
+        }
+        if (QUInPic != null)
+        {
+            QUInPic.close();
+        }
     }
 }

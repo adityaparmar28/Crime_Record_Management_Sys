@@ -29,25 +29,45 @@ public class UserQuries
     Database db=new Database();
     OODataQueries OODQ=new OODataQueries();
 
+    private boolean checkLoggedIn()
+    {
+        String loggedUserId = Login_SignUpPage.getLoggedUserID();
+        String loggedUserRole = Login_SignUpPage.getLoggedUserRole();
+
+        if (loggedUserId.equals("") || loggedUserRole.equalsIgnoreCase("Guest"))
+        {
+            System.err.println("[ERROR] Only logged user profile can be viewed. Login first....");
+            return false;
+        }
+        return true;
+    }
+
     public void ChangePassword() throws Exception
     {
+        if (!checkLoggedIn())
+        {
+            return;
+        }
         LSQ.ForgetPassword();
     }
 
     public void Profile() throws Exception
     {
+        if (!checkLoggedIn())
+        {
+            return;
+        }
         if (!APIs.OTP.sendAndVerifyOTP())
         {
             System.err.println("[FAILED] Verification failed....Access to profile denied....");
             return;
         }
 
+        DataStructure.DataStructure.ActivityLog.push("Viewed user profile for user: " + Login_SignUpPage.getLoggedUserID());
+
         String Profile = "SELECT UsersName,UserID,Role,EmailID,MobileNo,DOB FROM users WHERE UserID=?";
-
         PreparedStatement QPro = Database.getConnection().prepareStatement(Profile);
-
         QPro.setString(1,Login_SignUpPage.getLoggedUserID());
-
         ResultSet rs=QPro.executeQuery();
 
         if(rs.next())
@@ -72,6 +92,10 @@ public class UserQuries
 
     public void UpdateProfile(String LoggedId) throws Exception
     {
+        if (!checkLoggedIn())
+        {
+            return;
+        }
         System.out.println("| 1.Name");
         System.out.println("| 2.Email");
         System.out.println("| 3.Mobile");
@@ -134,7 +158,9 @@ public class UserQuries
             DataStructure.DataStructure.ActivityLog.push("Updated profile field '" + column + "' for user: " + LoggedId);
         }
         else
+        {
             System.err.println("[ERROR] Profile Update Failed....");
+        }
 
         ps.close();
     }

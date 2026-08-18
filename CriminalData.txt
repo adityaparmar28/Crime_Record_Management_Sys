@@ -1,0 +1,163 @@
+-------------------------| CRIMINAL DATA |-------------------------
+
+----------------------------------------------------------------------------------------------
+
+ | Criminal ID: A545 |
+ | Name: jhgs | Age: 0 | Gender: Male
+ | Case ID: A7645 | Crime: Accident | Crime Date: 2026-04-26
+ | Investigating Officer ID: TRO403 | Case Status: Pending | Punishment: null
+ | Criminal Status: null | Bail Date: null | Release Date: null
+
+----------------------------------------------------------------------------------------------
+
+ | Criminal ID: A567 |
+ | Name: asdf jhfd | Age: 0 | Gender: Male
+ | Case ID: A34567 | Crime: asdghj | Crime Date: 2026-04-15
+ | Investigating Officer ID: null | Case Status: Pending | Punishment: null
+ | Criminal Status: null | Bail Date: null | Release Date: null
+
+----------------------------------------------------------------------------------------------
+
+ | Criminal ID: C576 |
+ | Name: weoiig oijhg rtegsdj t | Age: 0 | Gender: Male
+ | Case ID: C9876 | Crime: Cyber Crime | Crime Date: 2025-10-28
+ | Investigating Officer ID: null | Case Status: Pending | Punishment: null
+ | Criminal Status: null | Bail Date: null | Release Date: null
+
+----------------------------------------------------------------------------------------------
+
+ | Criminal ID: D505 |
+ | Name: Arjun Das | Age: 38 | Gender: Male
+ | Case ID: D1005 | Crime: Drug Crime | Crime Date: 2026-04-05
+ | Investigating Officer ID: null | Case Status: Pending | Punishment: null
+ | Criminal Status: Under Trial | Bail Date: null | Release Date: null
+
+----------------------------------------------------------------------------------------------
+
+ | Criminal ID: D511 |
+ | Name: Vijay Patil | Age: 36 | Gender: Male
+ | Case ID: D1011 | Crime: Drug Crime | Crime Date: 2026-03-10
+ | Investigating Officer ID: null | Case Status: Pending | Punishment: null
+ | Criminal Status: Under Trial | Bail Date: 2026-09-10 | Release Date: null
+
+----------------------------------------------------------------------------------------------
+
+ | Criminal ID: K504 |
+ | Name: Sameer Khan | Age: 31 | Gender: Male
+ | Case ID: K1004 | Crime: Kidnapping | Crime Date: 2026-03-20
+ | Investigating Officer ID: WCO301 | Case Status: Investigating | Punishment: null
+ | Criminal Status: In Custody | Bail Date: null | Release Date: null
+
+----------------------------------------------------------------------------------------------
+
+ | Criminal ID: K507 |
+ | Name: Farhan Ali | Age: 33 | Gender: Male
+ | Case ID: K1007 | Crime: Kidnapping | Crime Date: 2026-06-22
+ | Investigating Officer ID: 5855 | Case Status: Investigating | Punishment: 7 Years
+ | Criminal Status: Convicted | Bail Date: null | Release Date: null
+
+----------------------------------------------------------------------------------------------
+
+ | Criminal ID: K565 |
+ | Name: uyfd | Age: 0 | Gender: Male
+ | Case ID: K765 | Crime: Kill | Crime Date: 2025-10-28
+ | Investigating Officer ID: null | Case Status: Pending | Punishment: null
+ | Criminal Status: null | Bail Date: null | Release Date: null
+
+----------------------------------------------------------------------------------------------
+
+ | Criminal ID: M503 |
+ | Name: Rohan Singh | Age: 42 | Gender: Male
+ | Case ID: M1003 | Crime: Murder | Crime Date: 2025-12-18
+ | Investigating Officer ID: null | Case Status: Pending | Punishment: Life Imprisonment
+ | Criminal Status: Convicted | Bail Date: null | Release Date: null
+
+----------------------------------------------------------------------------------------------
+
+ | Criminal ID: M510 |
+ | Name: Aisha Begum | Age: 30 | Gender: Female
+ | Case ID: M1010 | Crime: Murder | Crime Date: 2025-11-05
+ | Investigating Officer ID: null | Case Status: Pending | Punishment: null
+ | Criminal Status: In Custody | Bail Date: null | Release Date: null
+
+----------------------------------------------------------------------------------------------
+
+ | Criminal ID: M564 |
+ | Name: qwertui | Age: 0 | Gender: Male
+ | Case ID: M264 | Crime: Murder | Crime Date: 2025-04-25
+ | Investigating Officer ID: null | Case Status: Pending | Punishment: null
+ | Criminal Status: null | Bail Date: null | Release Date: null
+
+----------------------------------------------------------------------------------------------
+
+ | Criminal ID: M565 |
+ | Name: Qwertyuiop Poiuytrewq | Age: 0 | Gender: Male
+ | Case ID: M8765 | Crime: Murder | Crime Date: 2025-07-15
+ | Investigating Officer ID: null | Case Status: Pending | Punishment: null
+ | Criminal Status: null | Bail Date: null | Release Date: null
+
+----------------------------------------------------------------------------------------------
+
+ | Criminal ID: M585 |
+ | Name: Qwertyu Poiuyt | Age: 0 | Gender: Male
+ | Case ID: M685 | Crime: Murder | Crime Date: 2025-07-15
+ | Investigating Officer ID: null | Case Status: Pending | Punishment: null
+ | Criminal Status: null | Bail Date: null | Release Date: null
+
+----------------------------------------------------------------------------------------------
+
+ | Criminal ID: R501 |
+ | Name: Rakesh Yadav | Age: 35 | Gender: Male
+ | Case ID: R1001 | Crime: Robbery | Crime Date: 2026-01-10
+ | Investigating Officer ID: CBO101 | Case Status: Investigating | Punishment: null
+ | Criminal Status: In Custody | Bail Date: null | Release Date: null
+
+----------------------------------------------------------------------------------------------
+
+ | Criminal ID: R509 |
+ | Name: Deepak Chauhan | Age: 40 | Gender: Male
+ | Case ID: R1009 | Crime: Robbery | Crime Date: 2026-01-28
+ | Investigating Officer ID: null | Case Status: Pending | Punishment: null
+ | Criminal Status: Wanted | Bail Date: null | Release Date: null
+
+----------------------------------------------------------------------------------------------
+
+ | Criminal ID: R512 |
+ | Name: Nisha Kumari | Age: 22 | Gender: Female
+ | Case ID: R1012 | Crime: Robbery | Crime Date: 2026-08-01
+ | Investigating Officer ID: null | Case Status: Pending | Punishment: null
+ | Criminal Status: Wanted | Bail Date: null | Release Date: null
+
+----------------------------------------------------------------------------------------------
+
+ | Criminal ID: T508 |
+ | Name: Priya Dubey | Age: 25 | Gender: Female
+ | Case ID: T1008 | Crime: Traffic Violation | Crime Date: 2026-07-01
+ | Investigating Officer ID: TRO402 | Case Status: Investigating | Punishment: null
+ | Criminal Status: Under Trial | Bail Date: null | Release Date: null
+
+----------------------------------------------------------------------------------------------
+
+ | Criminal ID: T546 |
+ | Name: umar khalid | Age: 0 | Gender: Male
+ | Case ID: T6546 | Crime: Terrories | Crime Date: 2020-02-14
+ | Investigating Officer ID: TRO403 | Case Status: Pending | Punishment: null
+ | Criminal Status: null | Bail Date: null | Release Date: null
+
+----------------------------------------------------------------------------------------------
+
+ | Criminal ID: Y502 |
+ | Name: Kunal Patel | Age: 29 | Gender: Male
+ | Case ID: Y1002 | Crime: Cyber Crime | Crime Date: 2026-02-12
+ | Investigating Officer ID: CYO201 | Case Status: Investigating | Punishment: null
+ | Criminal Status: Wanted | Bail Date: null | Release Date: null
+
+----------------------------------------------------------------------------------------------
+
+ | Criminal ID: Y506 |
+ | Name: Sneha Reddy | Age: 27 | Gender: Female
+ | Case ID: Y1006 | Crime: Cyber Crime | Crime Date: 2026-05-15
+ | Investigating Officer ID: null | Case Status: Solved | Punishment: 3 Years
+ | Criminal Status: Convicted | Bail Date: null | Release Date: 2029-05-15
+
+-------------------------| END OF CRIMINAL DATA |-------------------------
