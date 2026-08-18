@@ -1,20 +1,33 @@
-v103/
+CRMSv103/
 ├── .idea/                 # IntelliJ IDEA configuration files
 ├── src/                   # Source directory for the Java application
+│   ├── APIs/              # Security and Helper APIs (Captcha, OTP, TimeStamp, custom exceptions)
+│   │   ├── AuthorizationException.java
+│   │   ├── Captcha.java
+│   │   ├── DBConnectionException.java
+│   │   ├── OTP.java
+│   │   └── TimeStamp.java
 │   ├── DataBase/          # Database configuration, connection management, schema validation & data seeding
 │   │   ├── CreateTable.java
 │   │   ├── Database.java
 │   │   ├── DataFound.java
 │   │   ├── InsertData.java
+│   │   ├── routines.sql       # Database SQL routines (functions and stored procedures)
 │   │   ├── table_relation_schema.png # Database relationship schema diagram
 │   │   └── Validation.java
-│   ├── DataStructure/     # Files and local report exports
+│   ├── DataStructure/     # Custom Data Structures & algorithms for in-memory processing
+│   │   ├── CustomBinarySearchTree.java
+│   │   ├── CustomDoublyLinkList.java
+│   │   ├── CustomPriorityQueue.java
+│   │   ├── CustomQueue.java
+│   │   ├── CustomStack.java
+│   │   ├── DataStructure.java
 │   │   └── IOFiles.java
 │   ├── Layout/            # Command Line Interface (CLI) menus & user layouts
-│   │   ├── Dashboard.java
 │   │   ├── CrimeMngr.java
 │   │   ├── CRMngr.java
-│   │   ├── DIG.java
+│   │   ├── DGP.java
+│   │   ├── Dashboard.java
 │   │   └── Investigation.java
 │   ├── Profile/           # User authentication and profile settings
 │   │   ├── Login_SignUpPage.java
@@ -22,7 +35,7 @@ v103/
 │   ├── Quries/            # Raw SQL Query execution files for database operations
 │   │   ├── CRMngrQueries.java
 │   │   ├── CrimeMngrQueries.java
-│   │   ├── DIGQueries.java
+│   │   ├── DGPQueries.java
 │   │   ├── IAQueries.java
 │   │   ├── Login_SignUp_Queries.java
 │   │   ├── OODataQueries.java
@@ -30,5 +43,7 @@ v103/
 │   └── Main.java
 ├── CasesData.txt          # Active exported database
 ├── OfficerData.txt        # Active officer roster export
+├── LICENSE                # Apache 2.0 License Agreement
+├── NOTICE                 # Attribution and copyright notice
 ├── README.md              # Documentation
-└── v103.iml               # IntelliJ module file
+└── CRMSv103.iml           # IntelliJ module file
